@@ -167,6 +167,76 @@ const URLSelector = ({ done }: { done: (imageURL: string) => void }) => {
 	);
 };
 
+const OdroidImageSelector = ({
+	done,
+}: {
+	done: (imageURL: string) => void;
+}) => {
+	const [imageURL, setImageURL] = React.useState('');
+	const [recentImages, setRecentImages]: [
+		string[],
+		(value: React.SetStateAction<string[]>) => void,
+	] = React.useState([]);
+	const [loading, setLoading] = React.useState(false);
+	React.useEffect(() => {
+		const fetchRecentUrlImages = async () => {
+			const recentUrlImages: string[] = await getRecentUrlImages();
+			setRecentImages(recentUrlImages);
+		};
+		fetchRecentUrlImages();
+	}, []);
+	return (
+		<Modal
+			primaryButtonProps={{
+				disabled: loading,
+			}}
+			done={async () => {
+				setLoading(true);
+				const sanitizedRecentUrls = normalizeRecentUrlImages([
+					...recentImages,
+					imageURL,
+				]);
+				setRecentUrlImages(sanitizedRecentUrls);
+				await done(imageURL);
+			}}
+		>
+			<label style={{ width: '100%' }}>
+				<Txt mb="10px" fontSize="20px">
+					Use Image URL
+				</Txt>
+				<Input
+					value={imageURL}
+					placeholder="Odroid image selector test. Is this window showed?"
+					type="text"
+					onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+						setImageURL(evt.target.value)
+					}
+				/>
+			</label>
+			{!_.isEmpty(recentImages) && (
+				<div>
+					Recent
+					<Card
+						style={{ padding: '10px 15px' }}
+						rows={_.map(recentImages, (recent) => (
+							<Txt
+								key={recent}
+								onClick={() => {
+									setImageURL(recent);
+								}}
+							>
+								<span>
+									{_.last(_.split(recent, '/'))} - {recent}
+								</span>
+							</Txt>
+						))}
+					/>
+				</div>
+			)}
+		</Modal>
+	);
+};
+
 interface Flow {
 	icon?: JSX.Element;
 	onClick: (evt: MouseEvent) => void;
@@ -215,6 +285,7 @@ interface SourceSelectorState {
 	warning: { message: string; title: string | null } | null;
 	showImageDetails: boolean;
 	showURLSelector: boolean;
+	showOdroidImageSelector: boolean;
 }
 
 export class SourceSelector extends React.Component<
@@ -231,10 +302,12 @@ export class SourceSelector extends React.Component<
 			warning: null,
 			showImageDetails: false,
 			showURLSelector: false,
+			showOdroidImageSelector: false,
 		};
 
 		this.openImageSelector = this.openImageSelector.bind(this);
 		this.openURLSelector = this.openURLSelector.bind(this);
+		this.openOdroidImageSelector = this.openOdroidImageSelector.bind(this);
 		this.reselectImage = this.reselectImage.bind(this);
 		this.onDrop = this.onDrop.bind(this);
 		this.showSelectedImageDetails = this.showSelectedImageDetails.bind(this);
@@ -433,6 +506,14 @@ export class SourceSelector extends React.Component<
 		});
 	}
 
+	private openOdroidImageSelector() {
+		analytics.logEvent('Open Odroid image URL selector');
+
+		this.setState({
+			showOdroidImageSelector: true,
+		});
+	}
+
 	private onDragOver(event: React.DragEvent<HTMLDivElement>) {
 		// Needed to get onDrop events on div elements
 		event.preventDefault();
@@ -456,7 +537,11 @@ export class SourceSelector extends React.Component<
 	// TODO add a visual change when dragging a file over the selector
 	public render() {
 		const { flashing } = this.props;
-		const { showImageDetails, showURLSelector } = this.state;
+		const {
+			showImageDetails,
+			showURLSelector,
+			showOdroidImageSelector,
+		} = this.state;
 
 		const hasImage = selectionState.hasImage();
 
@@ -522,7 +607,7 @@ export class SourceSelector extends React.Component<
 								<FlowSelector
 									key="Odroid images"
 									flow={{
-										onClick: this.openURLSelector,
+										onClick: this.openOdroidImageSelector,
 										label: 'Odroid images',
 										icon: <FontAwesomeIcon icon={faLink} />,
 									}}
@@ -590,6 +675,29 @@ export class SourceSelector extends React.Component<
 							});
 							this.setState({
 								showURLSelector: false,
+							});
+						}}
+					/>
+				)}
+				{showOdroidImageSelector && (
+					<OdroidImageSelector
+						done={async (imagePath: string) => {
+							// Avoid analytics and selection state changes
+							// if no file was resolved from the dialog.
+							if (!imagePath) {
+								analytics.logEvent('URL selector closed');
+								this.setState({
+									showOdroidImageSelector: false,
+								});
+								return;
+							}
+
+							await this.selectImageByPath({
+								imagePath,
+								SourceType: sourceDestination.Http,
+							});
+							this.setState({
+								showOdroidImageSelector: false,
 							});
 						}}
 					/>
