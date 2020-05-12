@@ -519,6 +519,14 @@ export class SourceSelector extends React.Component<
 										icon: <FontAwesomeIcon icon={faLink} />,
 									}}
 								/>
+								<FlowSelector
+									key="Odroid images"
+									flow={{
+										onClick: this.openURLSelector,
+										label: 'Odroid images',
+										icon: <FontAwesomeIcon icon={faLink} />,
+									}}
+								/>
 								;
 							</StepSelection>
 						)}
