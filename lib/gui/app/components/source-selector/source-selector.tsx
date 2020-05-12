@@ -294,7 +294,7 @@ const OdroidImageSelector = ({
 
 interface Flow {
 	icon?: JSX.Element;
-	onClick: (evt: MouseEvent) => void;
+	onClick: (evt: React.MouseEvent) => void;
 	label: string;
 }
 
