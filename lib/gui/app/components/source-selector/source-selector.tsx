@@ -46,7 +46,6 @@ import {
 	DetailsText,
 	StepButton,
 	StepNameButton,
-	StepSelection,
 } from '../../styled-components';
 import { colors } from '../../theme';
 import { middleEllipsis } from '../../utils/middle-ellipsis';
@@ -308,10 +307,12 @@ const FlowSelector = styled(
 	},
 )`
 	border-radius: 24px;
+	color: rgba(255, 255, 255, 0.7);
 
 	:enabled:hover {
 		background-color: ${colors.primary.background};
 		color: ${colors.primary.foreground};
+		font-weight: 600;
 
 		svg {
 			color: ${colors.primary.foreground}!important;
@@ -604,6 +605,7 @@ export class SourceSelector extends React.Component<
 							<>
 								<StepNameButton
 									plain
+									fontSize={16}
 									onClick={this.showSelectedImageDetails}
 									tooltip={imageName || imageBasename}
 								>
@@ -619,7 +621,7 @@ export class SourceSelector extends React.Component<
 								</DetailsText>
 							</>
 						) : (
-							<StepSelection>
+							<>
 								<FlowSelector
 									key="Flash from file"
 									flow={{
@@ -628,7 +630,6 @@ export class SourceSelector extends React.Component<
 										icon: <FontAwesomeIcon icon={faFile} />,
 									}}
 								/>
-								;
 								<FlowSelector
 									key="Flash from URL"
 									flow={{
@@ -637,6 +638,7 @@ export class SourceSelector extends React.Component<
 										icon: <FontAwesomeIcon icon={faLink} />,
 									}}
 								/>
+<<<<<<< HEAD
 								<FlowSelector
 									key="Odroid images"
 									flow={{
@@ -647,6 +649,9 @@ export class SourceSelector extends React.Component<
 								/>
 								;
 							</StepSelection>
+=======
+							</>
+>>>>>>> 95ff5c98... Change font to SourceSansPro and fix hover color
 						)}
 					</div>
 				</div>
