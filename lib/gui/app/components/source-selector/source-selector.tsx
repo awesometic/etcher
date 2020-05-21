@@ -21,7 +21,14 @@ import * as _ from 'lodash';
 import { GPTPartition, MBRPartition } from 'partitioninfo';
 import * as path from 'path';
 import * as React from 'react';
-import { ButtonProps, Card as BaseCard, Input, Modal, Txt } from 'rendition';
+import {
+	ButtonProps,
+	Card as BaseCard,
+	Input,
+	Modal,
+	Txt,
+	Table,
+} from 'rendition';
 import styled from 'styled-components';
 
 import * as errors from '../../../../shared/errors';
@@ -44,6 +51,7 @@ import {
 import { colors } from '../../theme';
 import { middleEllipsis } from '../../utils/middle-ellipsis';
 import { SVGIcon } from '../svg-icon/svg-icon';
+//import { createFullTextSearchFilter } from 'rendition/dist/components/Filters/SchemaSieve';
 
 const recentUrlImagesKey = 'recentUrlImages';
 
@@ -172,12 +180,79 @@ const OdroidImageSelector = ({
 }: {
 	done: (imageURL: string) => void;
 }) => {
-	const [imageURL, setImageURL] = React.useState('');
+	const [imageURL /*, setImageURL*/] = React.useState('');
 	const [recentImages, setRecentImages]: [
 		string[],
 		(value: React.SetStateAction<string[]>) => void,
 	] = React.useState([]);
 	const [loading, setLoading] = React.useState(false);
+	const odroidImagesTableColumns: any = [
+		{
+			field: 'file_name',
+			label: 'Odroid Image Name',
+			sortable: true,
+			render: (value: string) => <code>{value}</code>,
+		},
+		{
+			field: 'file_size',
+			label: 'Image File Size',
+			sortable: true,
+			render: (value: string) => <span>{value} GB</span>,
+		},
+	];
+	const odroidImagesTableData: any = [
+		{
+			url: 'http://odroid_image_0.img.xz',
+			file_name: 'odroid_image_0.img.xz',
+			file_size: '2.0',
+		},
+		{
+			url: 'http://odroid_image_1.img.xz',
+			file_name: 'odroid_image_1.img.xz',
+			file_size: '2.1',
+		},
+		{
+			url: 'http://odroid_image_2.img.xz',
+			file_name: 'odroid_image_2.img.xz',
+			file_size: '2.2',
+		},
+		{
+			url: 'http://odroid_image_3.img.xz',
+			file_name: 'odroid_image_3.img.xz',
+			file_size: '2.3',
+		},
+		{
+			url: 'http://odroid_image_4.img.xz',
+			file_name: 'odroid_image_4.img.xz',
+			file_size: '2.4',
+		},
+		{
+			url: 'http://odroid_image_5.img.xz',
+			file_name: 'odroid_image_5.img.xz',
+			file_size: '2.5',
+		},
+		{
+			url: 'http://odroid_image_6.img.xz',
+			file_name: 'odroid_image_6.img.xz',
+			file_size: '2.6',
+		},
+		{
+			url: 'http://odroid_image_7.img.xz',
+			file_name: 'odroid_image_7.img.xz',
+			file_size: '2.7',
+		},
+		{
+			url: 'http://odroid_image_8.img.xz',
+			file_name: 'odroid_image_8.img.xz',
+			file_size: '2.8',
+		},
+		{
+			url: 'http://odroid_image_9.img.xz',
+			file_name: 'odroid_image_9.img.xz',
+			file_size: '2.9',
+		},
+	];
+	const odroidImagesTableRowKey: any = 'file_name';
 	React.useEffect(() => {
 		const fetchRecentUrlImages = async () => {
 			const recentUrlImages: string[] = await getRecentUrlImages();
@@ -202,37 +277,17 @@ const OdroidImageSelector = ({
 		>
 			<label style={{ width: '100%' }}>
 				<Txt mb="10px" fontSize="20px">
-					Use Image URL
+					Select an Odroid image file to flash to your media card.
 				</Txt>
-				<Input
-					value={imageURL}
-					placeholder="Odroid image selector test. Is this window showed?"
-					type="text"
-					onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-						setImageURL(evt.target.value)
-					}
-				/>
 			</label>
-			{!_.isEmpty(recentImages) && (
-				<div>
-					Recent
-					<Card
-						style={{ padding: '10px 15px' }}
-						rows={_.map(recentImages, (recent) => (
-							<Txt
-								key={recent}
-								onClick={() => {
-									setImageURL(recent);
-								}}
-							>
-								<span>
-									{_.last(_.split(recent, '/'))} - {recent}
-								</span>
-							</Txt>
-						))}
-					/>
-				</div>
-			)}
+			<div>
+				<Table
+					columns={odroidImagesTableColumns}
+					data={odroidImagesTableData}
+					rowKey={odroidImagesTableRowKey}
+					onRowClick={(rowKey: string) => console.log(rowKey)}
+				/>
+			</div>
 		</Modal>
 	);
 };
