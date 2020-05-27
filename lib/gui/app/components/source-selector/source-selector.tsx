@@ -394,17 +394,6 @@ export class SourceSelector extends React.Component<
 			hasMBR: boolean;
 		},
 	) {
-		if (!supportedFormats.isSupportedImage(image.path)) {
-			const invalidImageError = errors.createUserError({
-				title: 'Invalid image',
-				description: messages.error.invalidImage(image.path),
-			});
-
-			osDialog.showError(invalidImageError);
-			analytics.logEvent('Invalid image', image);
-			return;
-		}
-
 		try {
 			let message = null;
 			let title = null;
@@ -448,16 +437,6 @@ export class SourceSelector extends React.Component<
 			imagePath = await replaceWindowsNetworkDriveLetter(imagePath);
 		} catch (error) {
 			analytics.logException(error);
-		}
-		if (!supportedFormats.isSupportedImage(imagePath)) {
-			const invalidImageError = errors.createUserError({
-				title: 'Invalid image',
-				description: messages.error.invalidImage(imagePath),
-			});
-
-			osDialog.showError(invalidImageError);
-			analytics.logEvent('Invalid image', { path: imagePath });
-			return;
 		}
 
 		let source;
