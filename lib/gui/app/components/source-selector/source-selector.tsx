@@ -53,6 +53,8 @@ import { middleEllipsis } from '../../utils/middle-ellipsis';
 import { SVGIcon } from '../svg-icon/svg-icon';
 //import { createFullTextSearchFilter } from 'rendition/dist/components/Filters/SchemaSieve';
 
+import ImageSvg from '../../../assets/image.svg';
+
 const recentUrlImagesKey = 'recentUrlImages';
 
 function normalizeRecentUrlImages(urls: any): string[] {
@@ -598,6 +600,7 @@ export class SourceSelector extends React.Component<
 		const imageBasename = hasImage ? path.basename(imagePath) : '';
 		const imageName = selectionState.getImageName();
 		const imageSize = selectionState.getImageSize();
+		const imageLogo = selectionState.getImageLogo();
 
 		return (
 			<>
@@ -609,8 +612,8 @@ export class SourceSelector extends React.Component<
 				>
 					<div className="center-block">
 						<SVGIcon
-							contents={[selectionState.getImageLogo()]}
-							paths={['image.svg']}
+							contents={imageLogo}
+							fallback={<ImageSvg width="40px" />}
 						/>
 					</div>
 
