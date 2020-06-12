@@ -613,7 +613,7 @@ export class SourceSelector extends React.Component<
 					<div className="center-block">
 						<SVGIcon
 							contents={imageLogo}
-							fallback={<ImageSvg width="40px" />}
+							fallback={<ImageSvg width="40px" height="40px" />}
 						/>
 					</div>
 
