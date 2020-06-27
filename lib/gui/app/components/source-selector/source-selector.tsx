@@ -51,7 +51,7 @@ import {
 import { colors } from '../../theme';
 import { middleEllipsis } from '../../utils/middle-ellipsis';
 import { SVGIcon } from '../svg-icon/svg-icon';
-//import { createFullTextSearchFilter } from 'rendition/dist/components/Filters/SchemaSieve';
+// import { createFullTextSearchFilter } from 'rendition/dist/components/Filters/SchemaSieve';
 
 import ImageSvg from '../../../assets/image.svg';
 
@@ -655,7 +655,6 @@ export class SourceSelector extends React.Component<
 										icon: <FontAwesomeIcon icon={faLink} />,
 									}}
 								/>
-<<<<<<< HEAD
 								<FlowSelector
 									key="Odroid images"
 									flow={{
@@ -664,11 +663,7 @@ export class SourceSelector extends React.Component<
 										icon: <FontAwesomeIcon icon={faLink} />,
 									}}
 								/>
-								;
-							</StepSelection>
-=======
 							</>
->>>>>>> 95ff5c98... Change font to SourceSansPro and fix hover color
 						)}
 					</div>
 				</div>
@@ -743,10 +738,10 @@ export class SourceSelector extends React.Component<
 				)}
 				{showOdroidImageSelector && (
 					<OdroidImageSelector
-						done={async (imagePath: string) => {
+						done={async (imageURL: string) => {
 							// Avoid analytics and selection state changes
 							// if no file was resolved from the dialog.
-							if (!imagePath) {
+							if (!imageURL) {
 								analytics.logEvent('URL selector closed');
 								this.setState({
 									showOdroidImageSelector: false,
@@ -755,7 +750,7 @@ export class SourceSelector extends React.Component<
 							}
 
 							await this.selectImageByPath({
-								imagePath,
+								imagePath: imageURL,
 								SourceType: sourceDestination.Http,
 							});
 							this.setState({
