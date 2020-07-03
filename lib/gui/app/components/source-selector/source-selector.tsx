@@ -55,6 +55,8 @@ import { SVGIcon } from '../svg-icon/svg-icon';
 
 import ImageSvg from '../../../assets/image.svg';
 
+import * as odroid from '../odroid/fetch';
+
 const recentUrlImagesKey = 'recentUrlImages';
 
 function normalizeRecentUrlImages(urls: any): string[] {
@@ -187,6 +189,9 @@ const OdroidImageSelector = ({
 		string[],
 		(value: React.SetStateAction<string[]>) => void,
 	] = React.useState([]);
+
+	odroid.test_fetch();
+
 	const [loading, setLoading] = React.useState(false);
 	const odroidImagesTableColumns: any = [
 		{
