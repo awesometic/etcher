@@ -301,7 +301,7 @@ const etcherConfig = {
 };
 
 const cssConfig = {
-	mode: 'production',
+	mode: 'development',
 	optimization: {
 		minimize: false,
 	},
