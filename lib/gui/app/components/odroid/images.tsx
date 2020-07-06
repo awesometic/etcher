@@ -5,48 +5,74 @@ const baseUrl = 'https://odroid.in/';
 const targetUrl = baseUrl + 'ubuntu_20.04lts/c4/';
 
 interface IOdroidImageInfo {
-	name: string;
+	fileName: string;
 	fileSize: string;
 	lastModified: string;
-	url: string;
+	downloadUrl: string;
 }
 
-class OdroidImageInfo {
-	private _name: string;
+export class OdroidImageInfo {
+	private _fileName: string;
 	private _fileSize: string;
 	private _lastModified: string;
-	private _url: string;
+	private _downloadUrl: string;
 
 	constructor(
 		obj: IOdroidImageInfo = {
-			name: '',
+			fileName: '',
 			fileSize: '',
 			lastModified: '',
-			url: '',
+			downloadUrl: '',
 		},
 	) {
-		this._name = obj.name;
+		this._fileName = obj.fileName;
 		this._fileSize = obj.fileSize;
 		this._lastModified = obj.lastModified;
-		this._url = obj.url;
+		this._downloadUrl = obj.downloadUrl;
+	}
+
+	public getFileName(): string {
+		return this._fileName;
+	}
+
+	public getDownloadUrl(): string {
+		return this._downloadUrl;
+	}
+
+	public toTableData() {
+		return {
+			file_name: this._fileName,
+			file_size: this._fileSize,
+			last_modified: this._lastModified,
+			download_url: this._downloadUrl,
+		};
 	}
 
 	public toString(): string {
 		return (
-			'' +
-			'\nname:\t' +
-			this._name +
-			'\nfileSize:\t' +
+			'{' +
+			'"file_name":' +
+			'"' +
+			this._fileName +
+			'",' +
+			'"file_size":' +
+			'"' +
 			this._fileSize +
-			'\nlastModified:\t' +
+			'",' +
+			'"last_modified":' +
+			'"' +
 			this._lastModified +
-			'\nurl:\t' +
-			this._url
+			'",' +
+			'"download_url":' +
+			'"' +
+			this._downloadUrl +
+			'",' +
+			'},'
 		);
 	}
 }
 
-async function odroidImagefetch(url = targetUrl): Promise<any[]> {
+export async function odroidImageFetch(url = targetUrl) {
 	return new Promise(async (resolve, reject) => {
 		const results = await axios.get(url);
 		let images: OdroidImageInfo[] = [];
@@ -67,20 +93,14 @@ async function odroidImagefetch(url = targetUrl): Promise<any[]> {
 
 			images.push(
 				new OdroidImageInfo({
-					name: fileName,
-					lastModified: $(tdList[2]).text().trim(),
+					fileName: fileName,
 					fileSize: fileSize,
-					url: url + fileName,
+					lastModified: $(tdList[2]).text().trim(),
+					downloadUrl: url + fileName,
 				}),
 			);
 		});
 
 		resolve(images);
-	});
-}
-
-export function test_fetch(): void {
-	odroidImagefetch().then((images) => {
-		console.log(images.toString());
 	});
 }

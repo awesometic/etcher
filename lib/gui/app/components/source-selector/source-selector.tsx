@@ -28,6 +28,7 @@ import {
 	Input,
 	Modal,
 	Txt,
+	Flex,
 	Table,
 } from 'rendition';
 import styled from 'styled-components';
@@ -55,7 +56,8 @@ import { SVGIcon } from '../svg-icon/svg-icon';
 
 import ImageSvg from '../../../assets/image.svg';
 
-import * as odroid from '../odroid/fetch';
+import { Async } from 'react-async';
+import { OdroidImageInfo, odroidImageFetch } from '../odroid/images';
 
 const recentUrlImagesKey = 'recentUrlImages';
 
@@ -184,82 +186,31 @@ const OdroidImageSelector = ({
 }: {
 	done: (imageURL: string) => void;
 }) => {
-	const [imageURL /*, setImageURL*/] = React.useState('');
+	const [imageURL, setImageURL] = React.useState('');
 	const [recentImages, setRecentImages]: [
 		string[],
 		(value: React.SetStateAction<string[]>) => void,
 	] = React.useState([]);
 
-	odroid.test_fetch();
-
 	const [loading, setLoading] = React.useState(false);
 	const odroidImagesTableColumns: any = [
 		{
 			field: 'file_name',
-			label: 'Odroid Image Name',
-			sortable: true,
+			label: 'Name',
 			render: (value: string) => <code>{value}</code>,
 		},
 		{
 			field: 'file_size',
-			label: 'Image File Size',
-			sortable: true,
-			render: (value: string) => <span>{value} GB</span>,
+			label: 'Size',
+			render: (value: string) => <span>{value}</span>,
+		},
+		{
+			field: 'last_modified',
+			label: 'Last Modified',
+			render: (value: string) => <span>{value}</span>,
 		},
 	];
-	const odroidImagesTableData: any = [
-		{
-			url: 'http://odroid_image_0.img.xz',
-			file_name: 'odroid_image_0.img.xz',
-			file_size: '2.0',
-		},
-		{
-			url: 'http://odroid_image_1.img.xz',
-			file_name: 'odroid_image_1.img.xz',
-			file_size: '2.1',
-		},
-		{
-			url: 'http://odroid_image_2.img.xz',
-			file_name: 'odroid_image_2.img.xz',
-			file_size: '2.2',
-		},
-		{
-			url: 'http://odroid_image_3.img.xz',
-			file_name: 'odroid_image_3.img.xz',
-			file_size: '2.3',
-		},
-		{
-			url: 'http://odroid_image_4.img.xz',
-			file_name: 'odroid_image_4.img.xz',
-			file_size: '2.4',
-		},
-		{
-			url: 'http://odroid_image_5.img.xz',
-			file_name: 'odroid_image_5.img.xz',
-			file_size: '2.5',
-		},
-		{
-			url: 'http://odroid_image_6.img.xz',
-			file_name: 'odroid_image_6.img.xz',
-			file_size: '2.6',
-		},
-		{
-			url: 'http://odroid_image_7.img.xz',
-			file_name: 'odroid_image_7.img.xz',
-			file_size: '2.7',
-		},
-		{
-			url: 'http://odroid_image_8.img.xz',
-			file_name: 'odroid_image_8.img.xz',
-			file_size: '2.8',
-		},
-		{
-			url: 'http://odroid_image_9.img.xz',
-			file_name: 'odroid_image_9.img.xz',
-			file_size: '2.9',
-		},
-	];
-	const odroidImagesTableRowKey: any = 'file_name';
+
 	React.useEffect(() => {
 		const fetchRecentUrlImages = async () => {
 			const recentUrlImages: string[] = await getRecentUrlImages();
@@ -267,10 +218,57 @@ const OdroidImageSelector = ({
 		};
 		fetchRecentUrlImages();
 	}, []);
+
+	const ScrollableFlex = styled(Flex)`
+		overflow: auto;
+
+		::-webkit-scrollbar {
+			display: none;
+		}
+
+		> div > div {
+			/* This is required for the sticky table header in TargetsTable */
+			overflow-x: visible;
+		}
+	`;
+
+	const OdroidImagesTable = styled(({ refFn, ...props }) => {
+		return (
+			<div>
+				<Table<OdroidImageInfo> ref={refFn} {...props} />
+			</div>
+		);
+	})`
+		[data-display='table-head'] [data-display='table-cell'] {
+			position: sticky;
+			top: 0;
+			background-color: ${(props) => props.theme.colors.quartenary.light};
+			font-color: grey;
+		}
+
+		[data-display='table-cell']:first-child {
+			padding-left: 15px;
+			width: 460px;
+		}
+
+		[data-display='table-cell']:last-child {
+			width: 150px;
+		}
+
+		&& [data-display='table-row'] > [data-display='table-cell'] {
+			padding: 6px 8px;
+			color: #2a506f;
+		}
+	`;
+
 	return (
 		<Modal
 			primaryButtonProps={{
 				disabled: loading,
+			}}
+			style={{
+				width: '780px',
+				height: '420px',
 			}}
 			done={async () => {
 				setLoading(true);
@@ -287,14 +285,63 @@ const OdroidImageSelector = ({
 					Select an Odroid image file to flash to your media card.
 				</Txt>
 			</label>
-			<div>
-				<Table
-					columns={odroidImagesTableColumns}
-					data={odroidImagesTableData}
-					rowKey={odroidImagesTableRowKey}
-					onRowClick={(rowKey: string) => console.log(rowKey)}
-				/>
-			</div>
+			<Flex width="100%" height="100%">
+				<Async
+					promiseFn={async () => {
+						return odroidImageFetch();
+					}}
+				>
+					{({ data, error, isLoading }) => {
+						if (isLoading) return 'Loading...';
+						if (error) return { error };
+
+						if (data)
+							return (
+								<ScrollableFlex
+									flexDirection="column"
+									width="100%"
+									height="calc(100% - 15px)"
+								>
+									<OdroidImagesTable
+										columns={odroidImagesTableColumns}
+										data={(data as OdroidImageInfo[]).map((imageInfo) =>
+											imageInfo.toTableData(),
+										)}
+										rowKey="download_url"
+										onRowClick={(row: any) => {
+											console.log(
+												'Clicked image file name: ' + row['file_name'],
+											);
+											setImageURL(row['download_url']);
+										}}
+									/>
+								</ScrollableFlex>
+							);
+					}}
+				</Async>
+			</Flex>
+			{!_.isEmpty(recentImages) && (
+				<div>
+					<Txt mb="10px" fontSize="20px">
+						Recent
+					</Txt>
+					<Card
+						style={{ padding: '10px 15px' }}
+						rows={_.map(recentImages, (recent) => (
+							<Txt
+								key={recent}
+								onClick={() => {
+									setImageURL(recent);
+								}}
+							>
+								<span>
+									{_.last(_.split(recent, '/'))} - {recent}
+								</span>
+							</Txt>
+						))}
+					/>
+				</div>
+			)}
 		</Modal>
 	);
 };
