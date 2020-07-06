@@ -99,6 +99,7 @@
     "path-is-inside": "^1.0.2",
     "pretty-bytes": "^5.3.0",
     "react": "^16.8.5",
+    "react-async": "^10.0.1",
     "react-dom": "^16.8.5",
     "redux": "^4.0.5",
     "rendition": "^15.2.1",
