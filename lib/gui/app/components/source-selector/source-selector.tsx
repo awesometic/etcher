@@ -320,28 +320,6 @@ const OdroidImageSelector = ({
 					}}
 				</Async>
 			</Flex>
-			{!_.isEmpty(recentImages) && (
-				<div>
-					<Txt mb="10px" fontSize="20px">
-						Recent
-					</Txt>
-					<Card
-						style={{ padding: '10px 15px' }}
-						rows={_.map(recentImages, (recent) => (
-							<Txt
-								key={recent}
-								onClick={() => {
-									setImageURL(recent);
-								}}
-							>
-								<span>
-									{_.last(_.split(recent, '/'))} - {recent}
-								</span>
-							</Txt>
-						))}
-					/>
-				</div>
-			)}
 		</Modal>
 	);
 };
