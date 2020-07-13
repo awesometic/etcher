@@ -22,15 +22,8 @@ import * as _ from 'lodash';
 import { GPTPartition, MBRPartition } from 'partitioninfo';
 import * as path from 'path';
 import * as React from 'react';
-import {
-	ButtonProps,
-	Card as BaseCard,
-	Input,
-	Modal,
-	Txt,
-	Flex,
-	Table,
-} from 'rendition';
+import { Async } from 'react-async';
+import { ButtonProps, Card as BaseCard, Input, Modal, Txt, Flex, Table, Step, Steps, Button } from 'rendition';
 import styled from 'styled-components';
 
 import * as errors from '../../../../shared/errors';
@@ -56,8 +49,7 @@ import { SVGIcon } from '../svg-icon/svg-icon';
 
 import ImageSvg from '../../../assets/image.svg';
 
-import { Async } from 'react-async';
-import { OdroidImageInfo, odroidImageFetch } from '../odroid/images';
+import { OdroidImageInfo, odroidImageFetch } from '../odroid/fetch';
 
 const recentUrlImagesKey = 'recentUrlImages';
 
@@ -193,6 +185,198 @@ const OdroidImageSelector = ({
 	] = React.useState([]);
 
 	const [loading, setLoading] = React.useState(false);
+
+	React.useEffect(() => {
+		const fetchRecentUrlImages = async () => {
+			const recentUrlImages: string[] = await getRecentUrlImages();
+			setRecentImages(recentUrlImages);
+		};
+		fetchRecentUrlImages();
+	}, []);
+
+	const ScrollableFlex = styled(Flex)`
+	overflow: auto;
+
+	::-webkit-scrollbar {
+		display: none;
+	}
+
+	> div > div {
+		/* This is required for the sticky table header in TargetsTable */
+		overflow-x: visible;
+	}
+	`;
+
+	const OdroidImagesTable = styled(({ refFn, ...props }) => {
+	return (
+		<div>
+			<Table<OdroidImageInfo> ref={refFn} {...props} />
+		</div>
+	);
+	})`
+	[data-display='table-head'] [data-display='table-cell'] {
+		position: sticky;
+		top: 0;
+		background-color: ${(props) => props.theme.colors.quartenary.light};
+		font-color: grey;
+	}
+
+	[data-display='table-cell']:first-child {
+		padding-left: 15px;
+		width: 460px;
+	}
+
+	[data-display='table-cell']:last-child {
+		width: 150px;
+	}
+
+	&& [data-display='table-row'] > [data-display='table-cell'] {
+		padding: 6px 8px;
+		color: #2a506f;
+	}
+	`;
+
+	let isComplete = [false, false, false, false];
+	const currentActiveStepIndex = () => {
+		let index = 0;
+
+		isComplete.forEach((element) => {
+			if (element)
+				index++;
+		});
+
+		return index;
+	}
+
+	interface OsSelectModalState {
+		board: boolean;
+		os: boolean;
+		mirrorServer: boolean;
+		image: boolean;
+	}
+
+	const ShowContents = (props: {
+		setModalState: (nextState: OsSelectModalState) => void
+	}) => {
+		let contents = null;
+		switch (currentActiveStepIndex()) {
+			case 0: {
+				contents = (
+					<Flex width="100%" height="100%">
+						<Button m={2} primary onClick={() => {
+							props.setModalState({
+								board: true,
+								os: true,
+								mirrorServer: false,
+								image: false,
+							});
+						}}>
+							Next
+						</Button>
+					</Flex>
+				);
+				break;
+			}
+			case 1: {
+				contents = (
+					<Flex width="100%" height="100%">
+						<Button m={2} primary onClick={() => {
+							props.setModalState({
+								board: true,
+								os: true,
+								mirrorServer: true,
+								image: false,
+							});
+						}}>
+							Next
+						</Button>
+					</Flex>
+				);
+				break;
+			}
+			case 2: {
+				contents = (
+					<Flex width="100%" height="100%">
+						<Button m={2} primary onClick={() => {
+							props.setModalState({
+								board: true,
+								os: true,
+								mirrorServer: true,
+								image: true,
+							});
+						}}>
+							Next
+						</Button>
+					</Flex>
+				);
+				break;
+			}
+			case 3: {
+				contents = (
+					<Flex width="100%" height="100%">
+						<Async
+							promiseFn={async () => {
+								return odroidImageFetch();
+							}}
+						>
+							{({ data, error, isLoading }) => {
+								if (isLoading) return 'Loading...';
+								if (error) return { error };
+
+								if (data)
+									return (
+										<ScrollableFlex
+											flexDirection="column"
+											width="100%"
+											height="calc(100% - 15px)"
+										>
+											<OdroidImagesTable
+												columns={odroidImagesTableColumns}
+												data={(data as OdroidImageInfo[]).map((imageInfo) =>
+													imageInfo.toTableData(),
+												)}
+												rowKey="download_url"
+												onRowClick={(row: any) => {
+													console.log(
+														'Clicked image file name: ' + row['file_name'],
+													);
+													setImageURL(row['download_url']);
+												}}
+											/>
+										</ScrollableFlex>
+									);
+							}}
+						</Async>
+					</Flex>
+				);
+				break;
+			}
+		}
+
+		return contents;
+	};
+
+	const StepLabels = ['Board', 'OS', 'Mirror Server', 'Image'];
+
+	const GetStep = (index: number) => {
+		return (
+			<Step
+				key={index}
+				status={isComplete[index] ? 'completed' : 'pending'}
+			>
+				{ StepLabels[index] }
+			</Step>
+		);
+	};
+
+	const OrderedStepsWrapper = ({ ...props }) => {
+		return (
+			<Steps ordered activeStepIndex={currentActiveStepIndex()} m={1} {...props}>
+				{StepLabels.map((_, index) => GetStep(index))}
+			</Steps>
+		);
+	};
+
 	const odroidImagesTableColumns: any = [
 		{
 			field: 'file_name',
@@ -211,116 +395,71 @@ const OdroidImageSelector = ({
 		},
 	];
 
-	React.useEffect(() => {
-		const fetchRecentUrlImages = async () => {
-			const recentUrlImages: string[] = await getRecentUrlImages();
-			setRecentImages(recentUrlImages);
-		};
-		fetchRecentUrlImages();
-	}, []);
+	class OsSelectModal extends React.Component<
+		{},
+		OsSelectModalState
+	> {
+		constructor(props: {}) {
+			super(props);
 
-	const ScrollableFlex = styled(Flex)`
-		overflow: auto;
+			this.state = {
+				board: true,
+				os: false,
+				mirrorServer: false,
+				image: false
+			};
 
-		::-webkit-scrollbar {
-			display: none;
+			this.update=this.update.bind(this);
 		}
 
-		> div > div {
-			/* This is required for the sticky table header in TargetsTable */
-			overflow-x: visible;
-		}
-	`;
+		public shouldComponentUpdate(_nextProps: {}, nextState: OsSelectModalState) {
+			if (nextState['image']) {
+				isComplete = [true, true, true, false];
+			} else if (nextState['mirrorServer']) {
+				isComplete = [true, true, false, false];
+			} else if (nextState['os']) {
+				isComplete = [true, false, false, false];
+			} else {
+				console.log('Something goes wrong, OsSelectModal will not render.');
+				return false;
+			}
 
-	const OdroidImagesTable = styled(({ refFn, ...props }) => {
-		return (
-			<div>
-				<Table<OdroidImageInfo> ref={refFn} {...props} />
-			</div>
-		);
-	})`
-		[data-display='table-head'] [data-display='table-cell'] {
-			position: sticky;
-			top: 0;
-			background-color: ${(props) => props.theme.colors.quartenary.light};
-			font-color: grey;
+			return true;
 		}
 
-		[data-display='table-cell']:first-child {
-			padding-left: 15px;
-			width: 460px;
+		private update(nextState: OsSelectModalState) {
+			this.setState(nextState);
 		}
 
-		[data-display='table-cell']:last-child {
-			width: 150px;
-		}
-
-		&& [data-display='table-row'] > [data-display='table-cell'] {
-			padding: 6px 8px;
-			color: #2a506f;
-		}
-	`;
-
-	return (
-		<Modal
-			primaryButtonProps={{
-				disabled: loading,
-			}}
-			style={{
-				width: '780px',
-				height: '420px',
-			}}
-			done={async () => {
-				setLoading(true);
-				const sanitizedRecentUrls = normalizeRecentUrlImages([
-					...recentImages,
-					imageURL,
-				]);
-				setRecentUrlImages(sanitizedRecentUrls);
-				await done(imageURL);
-			}}
-		>
-			<label style={{ width: '100%' }}>
-				<Txt mb="10px" fontSize="20px">
-					Select an Odroid image file to flash to your media card.
-				</Txt>
-			</label>
-			<Flex width="100%" height="100%">
-				<Async
-					promiseFn={async () => {
-						return odroidImageFetch();
+		public render() {
+			return (
+				<Modal
+					primaryButtonProps={{
+						disabled: loading,
+					}}
+					style={{
+						width: '780px',
+						height: '420px',
+					}}
+					done={async () => {
+						setLoading(true);
+						const sanitizedRecentUrls = normalizeRecentUrlImages([
+							...recentImages,
+							imageURL,
+						]);
+						setRecentUrlImages(sanitizedRecentUrls);
+						await done(imageURL);
 					}}
 				>
-					{({ data, error, isLoading }) => {
-						if (isLoading) return 'Loading...';
-						if (error) return { error };
+					<OrderedStepsWrapper bordered={false} />
+					<ShowContents setModalState={this.update} />
+				</Modal>
+			);
+		}
+	}
 
-						if (data)
-							return (
-								<ScrollableFlex
-									flexDirection="column"
-									width="100%"
-									height="calc(100% - 15px)"
-								>
-									<OdroidImagesTable
-										columns={odroidImagesTableColumns}
-										data={(data as OdroidImageInfo[]).map((imageInfo) =>
-											imageInfo.toTableData(),
-										)}
-										rowKey="download_url"
-										onRowClick={(row: any) => {
-											console.log(
-												'Clicked image file name: ' + row['file_name'],
-											);
-											setImageURL(row['download_url']);
-										}}
-									/>
-								</ScrollableFlex>
-							);
-					}}
-				</Async>
-			</Flex>
-		</Modal>
+	return (
+		<OsSelectModal />
 	);
 };
 

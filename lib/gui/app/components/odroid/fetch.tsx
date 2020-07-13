@@ -75,7 +75,7 @@ export class OdroidImageInfo {
 export async function odroidImageFetch(url = targetUrl) {
 	return new Promise(async (resolve, reject) => {
 		const results = await axios.get(url);
-		let images: OdroidImageInfo[] = [];
+		const images: OdroidImageInfo[] = [];
 
 		if (results.status !== 200) {
 			reject('Failed to load ' + url);
@@ -93,8 +93,8 @@ export async function odroidImageFetch(url = targetUrl) {
 
 			images.push(
 				new OdroidImageInfo({
-					fileName: fileName,
-					fileSize: fileSize,
+					fileName,
+					fileSize,
 					lastModified: $(tdList[2]).text().trim(),
 					downloadUrl: url + fileName,
 				}),
