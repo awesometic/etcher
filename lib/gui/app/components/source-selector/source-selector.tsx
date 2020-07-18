@@ -263,88 +263,76 @@ const OdroidImageSelector = ({
 		switch (currentActiveStepIndex()) {
 			case 0: {
 				contents = (
-					<Flex width="100%" height="100%">
-						<Button m={2} primary onClick={() => {
-							props.setModalState({
-								board: true,
-								os: true,
-								mirrorServer: false,
-								image: false,
-							});
-						}}>
-							Next
-						</Button>
-					</Flex>
+					<Button m={2} primary onClick={() => {
+						props.setModalState({
+							board: true,
+							os: true,
+							mirrorServer: false,
+							image: false,
+						});
+					}}>
+						Next
+					</Button>
 				);
 				break;
 			}
 			case 1: {
 				contents = (
-					<Flex width="100%" height="100%">
-						<Button m={2} primary onClick={() => {
-							props.setModalState({
-								board: true,
-								os: true,
-								mirrorServer: true,
-								image: false,
-							});
-						}}>
-							Next
-						</Button>
-					</Flex>
+					<Button m={2} primary onClick={() => {
+						props.setModalState({
+							board: true,
+							os: true,
+							mirrorServer: true,
+							image: false,
+						});
+					}}>
+						Next
+					</Button>
 				);
 				break;
 			}
 			case 2: {
 				contents = (
-					<Flex width="100%" height="100%">
-						<Button m={2} primary onClick={() => {
-							props.setModalState({
-								board: true,
-								os: true,
-								mirrorServer: true,
-								image: true,
-							});
-						}}>
-							Next
-						</Button>
-					</Flex>
+					<Button m={2} primary onClick={() => {
+						props.setModalState({
+							board: true,
+							os: true,
+							mirrorServer: true,
+							image: true,
+						});
+					}}>
+						Next
+					</Button>
 				);
 				break;
 			}
 			case 3: {
 				contents = (
-					<ScrollableFlex
-						flexDirection="column"
-						width="100%"
-						height="calc(100% - 15px)"
+					<Async
+						promiseFn={async () => odroidImageFetch()}
 					>
-						<Async
-							promiseFn={async () => odroidImageFetch()}
-						>
-							{({ data, error, isLoading }) => {
-								if (isLoading) return 'Loading...';
-								if (error) return { error };
+						{({ data, error, isLoading }) => {
+							if (isLoading) return 'Loading...';
+							if (error) return { error };
 
-								if (data)
-									return (
-										<OdroidImagesTable
-											columns={odroidImagesTableColumns}
-											data={(data as OdroidImageInfo[]).map((imageInfo) =>
-												imageInfo.toTableData(),
-											)}
-											rowKey="download_url"
-											onRowClick={(row: any) => {
-												console.log(
-													'Clicked image file name: ' + row['file_name'],
-												);
-												setImageURL(row['download_url']);
-											}}
-										/>
-									);
-							}}
-						</Async>
-					</ScrollableFlex>
+							if (data)
+								return (
+									<OdroidImagesTable
+										columns={odroidImagesTableColumns}
+										data={(data as OdroidImageInfo[]).map((imageInfo) =>
+											imageInfo.toTableData(),
+										)}
+										rowKey="download_url"
+										onRowClick={(row: any) => {
+											console.log(
+												'Clicked image file name: ' + row['file_name'],
+											);
+											setImageURL(row['download_url']);
+										}}
+									/>
+								);
+						}}
+					</Async>
 				);
 				break;
 			}
@@ -469,7 +457,13 @@ const OdroidImageSelector = ({
 				await done(imageURL);
 			}}
 		>
-			<OsSelectModal />
+			<ScrollableFlex
+				flexDirection="column"
+				width="100%"
+				height="calc(100% - 15px)"
+			>
+				<OsSelectModal />
+			</ScrollableFlex>
 		</Modal>
 	);
 };
