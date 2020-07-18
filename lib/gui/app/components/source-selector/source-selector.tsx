@@ -23,7 +23,19 @@ import { GPTPartition, MBRPartition } from 'partitioninfo';
 import * as path from 'path';
 import * as React from 'react';
 import { Async } from 'react-async';
-import { ButtonProps, Card as BaseCard, Input, Modal, Txt, Flex, Table, Step, Steps, Button, Spinner } from 'rendition';
+import {
+	ButtonProps,
+	Card as BaseCard,
+	Input,
+	Modal,
+	Txt,
+	Flex,
+	Table,
+	Step,
+	Steps,
+	Button,
+	Spinner,
+} from 'rendition';
 import styled from 'styled-components';
 
 import * as errors from '../../../../shared/errors';
@@ -185,7 +197,9 @@ const OdroidImageSelector = ({
 	] = React.useState([]);
 
 	// If imageURL variable has more than 7 letters, "http://".
-	const isImageUrlSet = () => { return imageURL.length > 7 };
+	const isImageUrlSet = () => {
+		return imageURL.length > 7;
+	};
 
 	React.useEffect(() => {
 		const fetchRecentUrlImages = async () => {
@@ -196,45 +210,45 @@ const OdroidImageSelector = ({
 	}, []);
 
 	const ScrollableFlex = styled(Flex)`
-	overflow: auto;
+		overflow: auto;
 
-	::-webkit-scrollbar {
-		display: none;
-	}
+		::-webkit-scrollbar {
+			display: none;
+		}
 
-	> div > div {
-		/* This is required for the sticky table header in TargetsTable */
-		overflow-x: visible;
-	}
+		> div > div {
+			/* This is required for the sticky table header in TargetsTable */
+			overflow-x: visible;
+		}
 	`;
 
 	const OdroidImagesTable = styled(({ refFn, ...props }) => {
-	return (
-		<div>
-			<Table<OdroidImageInfo> ref={refFn} {...props} />
-		</div>
-	);
+		return (
+			<div>
+				<Table<OdroidImageInfo> ref={refFn} {...props} />
+			</div>
+		);
 	})`
-	[data-display='table-head'] [data-display='table-cell'] {
-		position: sticky;
-		top: 0;
-		background-color: ${(props) => props.theme.colors.quartenary.light};
-		font-color: grey;
-	}
+		[data-display='table-head'] [data-display='table-cell'] {
+			position: sticky;
+			top: 0;
+			background-color: ${(props) => props.theme.colors.quartenary.light};
+			font-color: grey;
+		}
 
-	[data-display='table-cell']:first-child {
-		padding-left: 15px;
-		width: 460px;
-	}
+		[data-display='table-cell']:first-child {
+			padding-left: 15px;
+			width: 460px;
+		}
 
-	[data-display='table-cell']:last-child {
-		width: 150px;
-	}
+		[data-display='table-cell']:last-child {
+			width: 150px;
+		}
 
-	&& [data-display='table-row'] > [data-display='table-cell'] {
-		padding: 6px 8px;
-		color: #2a506f;
-	}
+		&& [data-display='table-row'] > [data-display='table-cell'] {
+			padding: 6px 8px;
+			color: #2a506f;
+		}
 	`;
 
 	let isComplete = [false, false, false, false];
@@ -242,12 +256,11 @@ const OdroidImageSelector = ({
 		let index = 0;
 
 		isComplete.forEach((element) => {
-			if (element)
-				index++;
+			if (element) index++;
 		});
 
 		return index;
-	}
+	};
 
 	interface OsSelectModalState {
 		board: boolean;
@@ -257,20 +270,24 @@ const OdroidImageSelector = ({
 	}
 
 	const ShowContents = (props: {
-		setModalState: (nextState: OsSelectModalState) => void
+		setModalState: (nextState: OsSelectModalState) => void;
 	}) => {
 		let contents = null;
 		switch (currentActiveStepIndex()) {
 			case 0: {
 				contents = (
-					<Button m={2} primary onClick={() => {
-						props.setModalState({
-							board: true,
-							os: true,
-							mirrorServer: false,
-							image: false,
-						});
-					}}>
+					<Button
+						m={2}
+						primary
+						onClick={() => {
+							props.setModalState({
+								board: true,
+								os: true,
+								mirrorServer: false,
+								image: false,
+							});
+						}}
+					>
 						Next
 					</Button>
 				);
@@ -278,14 +295,18 @@ const OdroidImageSelector = ({
 			}
 			case 1: {
 				contents = (
-					<Button m={2} primary onClick={() => {
-						props.setModalState({
-							board: true,
-							os: true,
-							mirrorServer: true,
-							image: false,
-						});
-					}}>
+					<Button
+						m={2}
+						primary
+						onClick={() => {
+							props.setModalState({
+								board: true,
+								os: true,
+								mirrorServer: true,
+								image: false,
+							});
+						}}
+					>
 						Next
 					</Button>
 				);
@@ -293,14 +314,18 @@ const OdroidImageSelector = ({
 			}
 			case 2: {
 				contents = (
-					<Button m={2} primary onClick={() => {
-						props.setModalState({
-							board: true,
-							os: true,
-							mirrorServer: true,
-							image: true,
-						});
-					}}>
+					<Button
+						m={2}
+						primary
+						onClick={() => {
+							props.setModalState({
+								board: true,
+								os: true,
+								mirrorServer: true,
+								image: true,
+							});
+						}}
+					>
 						Next
 					</Button>
 				);
@@ -308,9 +333,7 @@ const OdroidImageSelector = ({
 			}
 			case 3: {
 				contents = (
-					<Async
-						promiseFn={async () => odroidImageFetch()}
-					>
+					<Async promiseFn={async () => odroidImageFetch()}>
 						{({ data, error, isLoading }) => {
 							if (isLoading) return 'Loading...';
 							if (error) return { error };
@@ -345,19 +368,21 @@ const OdroidImageSelector = ({
 
 	const GetStep = (index: number) => {
 		return (
-			<Step
-				key={index}
-				status={isComplete[index] ? 'completed' : 'pending'}
-			>
-				{ StepLabels[index] }
+			<Step key={index} status={isComplete[index] ? 'completed' : 'pending'}>
+				{StepLabels[index]}
 			</Step>
 		);
 	};
 
 	const OrderedStepsWrapper = ({ ...props }) => {
 		return (
-			<Steps ordered activeStepIndex={currentActiveStepIndex()} m={1} {...props}>
-				{StepLabels.map((_, index) => GetStep(index))}
+			<Steps
+				ordered
+				activeStepIndex={currentActiveStepIndex()}
+				m={1}
+				{...props}
+			>
+				{StepLabels.map((_null, index) => GetStep(index))}
 			</Steps>
 		);
 	};
@@ -380,10 +405,7 @@ const OdroidImageSelector = ({
 		},
 	];
 
-	class OsSelectModal extends React.Component<
-		{},
-		OsSelectModalState
-	> {
+	class OsSelectModal extends React.Component<{}, OsSelectModalState> {
 		constructor(props: {}) {
 			super(props);
 
@@ -391,13 +413,16 @@ const OdroidImageSelector = ({
 				board: true,
 				os: false,
 				mirrorServer: false,
-				image: false
+				image: false,
 			};
 
-			this.update=this.update.bind(this);
+			this.update = this.update.bind(this);
 		}
 
-		public shouldComponentUpdate(_nextProps: {}, nextState: OsSelectModalState) {
+		public shouldComponentUpdate(
+			_nextProps: {},
+			nextState: OsSelectModalState,
+		) {
 			if (nextState['image']) {
 				isComplete = [true, true, true, false];
 			} else if (nextState['mirrorServer']) {
@@ -424,7 +449,10 @@ const OdroidImageSelector = ({
 			if (isImageUrlSet()) {
 				contents = (
 					<Flex width="100%" height="100%">
-						<Spinner label='Downloading... Please wait for a moment...' emphasized />
+						<Spinner
+							label="Downloading... Please wait for a moment..."
+							emphasized
+						/>
 					</Flex>
 				);
 			} else {
