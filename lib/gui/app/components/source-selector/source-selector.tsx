@@ -23,7 +23,7 @@ import { GPTPartition, MBRPartition } from 'partitioninfo';
 import * as path from 'path';
 import * as React from 'react';
 import { Async } from 'react-async';
-import { ButtonProps, Card as BaseCard, Input, Modal, Txt, Flex, Table, Step, Steps, Button } from 'rendition';
+import { ButtonProps, Card as BaseCard, Input, Modal, Txt, Flex, Table, Step, Steps, Button, Spinner } from 'rendition';
 import styled from 'styled-components';
 
 import * as errors from '../../../../shared/errors';
@@ -184,7 +184,8 @@ const OdroidImageSelector = ({
 		(value: React.SetStateAction<string[]>) => void,
 	] = React.useState([]);
 
-	const [loading, setLoading] = React.useState(false);
+	// If imageURL variable has more than 7 letters, "http://".
+	const isImageUrlSet = () => { return imageURL.length > 7 };
 
 	React.useEffect(() => {
 		const fetchRecentUrlImages = async () => {
@@ -313,11 +314,13 @@ const OdroidImageSelector = ({
 			}
 			case 3: {
 				contents = (
-					<Flex width="100%" height="100%">
+					<ScrollableFlex
+						flexDirection="column"
+						width="100%"
+						height="calc(100% - 15px)"
+					>
 						<Async
-							promiseFn={async () => {
-								return odroidImageFetch();
-							}}
+							promiseFn={async () => odroidImageFetch()}
 						>
 							{({ data, error, isLoading }) => {
 								if (isLoading) return 'Loading...';
@@ -325,29 +328,23 @@ const OdroidImageSelector = ({
 
 								if (data)
 									return (
-										<ScrollableFlex
-											flexDirection="column"
-											width="100%"
-											height="calc(100% - 15px)"
-										>
-											<OdroidImagesTable
-												columns={odroidImagesTableColumns}
-												data={(data as OdroidImageInfo[]).map((imageInfo) =>
-													imageInfo.toTableData(),
-												)}
-												rowKey="download_url"
-												onRowClick={(row: any) => {
-													console.log(
-														'Clicked image file name: ' + row['file_name'],
-													);
-													setImageURL(row['download_url']);
-												}}
-											/>
-										</ScrollableFlex>
+										<OdroidImagesTable
+											columns={odroidImagesTableColumns}
+											data={(data as OdroidImageInfo[]).map((imageInfo) =>
+												imageInfo.toTableData(),
+											)}
+											rowKey="download_url"
+											onRowClick={(row: any) => {
+												console.log(
+													'Clicked image file name: ' + row['file_name'],
+												);
+												setImageURL(row['download_url']);
+											}}
+										/>
 									);
 							}}
 						</Async>
-					</Flex>
+					</ScrollableFlex>
 				);
 				break;
 			}
@@ -424,6 +421,8 @@ const OdroidImageSelector = ({
 				return false;
 			}
 
+			console.log(isComplete);
+
 			return true;
 		}
 
@@ -432,34 +431,46 @@ const OdroidImageSelector = ({
 		}
 
 		public render() {
-			return (
-				<Modal
-					primaryButtonProps={{
-						disabled: loading,
-					}}
-					style={{
-						width: '780px',
-						height: '420px',
-					}}
-					done={async () => {
-						setLoading(true);
-						const sanitizedRecentUrls = normalizeRecentUrlImages([
-							...recentImages,
-							imageURL,
-						]);
-						setRecentUrlImages(sanitizedRecentUrls);
-						await done(imageURL);
-					}}
-				>
-					<OrderedStepsWrapper bordered={false} />
-					<ShowContents setModalState={this.update} />
-				</Modal>
-			);
+			let contents = null;
+
+			if (isImageUrlSet()) {
+				contents = (
+					<Flex width="100%" height="100%">
+						<Spinner label='Downloading... Please wait for a moment...' emphasized />
+					</Flex>
+				);
+			} else {
+				contents = (
+					<>
+						<OrderedStepsWrapper bordered={false} />
+						<ShowContents setModalState={this.update} />
+					</>
+				);
+			}
+			return contents;
 		}
 	}
 
 	return (
-		<OsSelectModal />
+		<Modal
+			primaryButtonProps={{
+				disabled: isImageUrlSet(),
+			}}
+			style={{
+				width: '780px',
+				height: '420px',
+			}}
+			done={async () => {
+				const sanitizedRecentUrls = normalizeRecentUrlImages([
+					...recentImages,
+					imageURL,
+				]);
+				setRecentUrlImages(sanitizedRecentUrls);
+				await done(imageURL);
+			}}
+		>
+			<OsSelectModal />
+		</Modal>
 	);
 };
 
