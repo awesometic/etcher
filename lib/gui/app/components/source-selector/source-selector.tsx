@@ -294,6 +294,7 @@ const OdroidImageSelector = ({
 						data={boardNames.map((boardName) => toBoardTableData(boardName))}
 						rowKey="board_name"
 						onRowClick={(row: any) => {
+							console.log('Clicked: ' + row['board_name']);
 							selectedByUser['board'] = row['board_name'];
 							props.setModalState({
 								board: true,
@@ -324,6 +325,7 @@ const OdroidImageSelector = ({
 						data={OsNames.map((osName) => toOsTableData(osName))}
 						rowKey="os_name"
 						onRowClick={(row: any) => {
+							console.log('Clicked: ' + row['os_name']);
 							selectedByUser['os'] = row['os_name'];
 							props.setModalState({
 								board: true,
@@ -352,6 +354,7 @@ const OdroidImageSelector = ({
 						)}
 						rowKey="mirror_server_name"
 						onRowClick={(row: any) => {
+							console.log('Clicked: ' + row['mirror_server_name']);
 							selectedByUser['mirrorServer'] = row['mirror_server_name'];
 							props.setModalState({
 								board: true,
@@ -389,6 +392,7 @@ const OdroidImageSelector = ({
 											console.log(
 												'Clicked image file name: ' + row['file_name'],
 											);
+											console.log('Download URL: ' + row['download_url']);
 											setImageURL(row['download_url']);
 										}}
 									/>
