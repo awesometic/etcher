@@ -13,8 +13,8 @@ export const ImageNests = new Map<string, Map<string, string>>([
 		'C4',
 		new Map([
 			['UBUNTU', 'S905X3/ODROID-C4/Ubuntu/'],
-			['ANDROID_PIE_64', 'S905X3/ODROID-C4/Android/pie/64'],
-			['ANDROID_PIE_32', 'S905X3/ODROID-C4/Android/pie/32'],
+			['ANDROID_PIE_64', 'S905X3/ODROID-C4/Android/pie/64/'],
+			['ANDROID_PIE_32', 'S905X3/ODROID-C4/Android/pie/32/'],
 		]),
 	],
 ]);
