@@ -1,9 +1,6 @@
 import axios from 'axios';
 import { load } from 'cheerio';
 
-const baseUrl = 'https://odroid.in/';
-const targetUrl = baseUrl + 'ubuntu_20.04lts/c4/';
-
 interface IOdroidImageInfo {
 	fileName: string;
 	fileSize: string;
@@ -72,7 +69,7 @@ export class OdroidImageInfo {
 	}
 }
 
-export async function odroidImageFetch(url = targetUrl) {
+export async function odroidImageFetch(url: string) {
 	return new Promise(async (resolve, reject) => {
 		const results = await axios.get(url);
 		const images: OdroidImageInfo[] = [];

@@ -33,7 +33,6 @@ import {
 	Table,
 	Step,
 	Steps,
-	Button,
 	Spinner,
 } from 'rendition';
 import styled from 'styled-components';
@@ -62,6 +61,7 @@ import { SVGIcon } from '../svg-icon/svg-icon';
 import ImageSvg from '../../../assets/image.svg';
 
 import { OdroidImageInfo, odroidImageFetch } from '../odroid/fetch';
+import { MirrorServers, ImageNests } from '../odroid/addresses';
 
 const recentUrlImagesKey = 'recentUrlImages';
 
@@ -262,24 +262,39 @@ const OdroidImageSelector = ({
 		return index;
 	};
 
-	interface OsSelectModalState {
+	interface ImageSelectModalState {
 		board: boolean;
 		os: boolean;
 		mirrorServer: boolean;
 		image: boolean;
 	}
 
+	let selectedByUser = {
+		board: '',
+		os: '',
+		mirrorServer: '',
+	};
+
 	const ShowContents = (props: {
-		setModalState: (nextState: OsSelectModalState) => void;
+		setModalState: (nextState: ImageSelectModalState) => void;
 	}) => {
 		let contents = null;
 		switch (currentActiveStepIndex()) {
 			case 0: {
+				const boardNames = Array.from(ImageNests.keys());
+				const toBoardTableData = (boardName: string) => {
+					return {
+						board_name: boardName,
+					};
+				};
+
 				contents = (
-					<Button
-						m={2}
-						primary
-						onClick={() => {
+					<OdroidImagesTable
+						columns={odroidBoardsTableColumns}
+						data={boardNames.map((boardName) => toBoardTableData(boardName))}
+						rowKey="board_name"
+						onRowClick={(row: any) => {
+							selectedByUser['board'] = row['board_name'];
 							props.setModalState({
 								board: true,
 								os: true,
@@ -287,18 +302,29 @@ const OdroidImageSelector = ({
 								image: false,
 							});
 						}}
-					>
-						Next
-					</Button>
+					/>
 				);
 				break;
 			}
 			case 1: {
+				const OsByBoard = ImageNests.get(selectedByUser['board']) as Map<
+					string,
+					string
+				>;
+				const OsNames = Array.from(OsByBoard.keys());
+				const toOsTableData = (osName: string) => {
+					return {
+						os_name: osName,
+					};
+				};
+
 				contents = (
-					<Button
-						m={2}
-						primary
-						onClick={() => {
+					<OdroidImagesTable
+						columns={odroidOsTableColumns}
+						data={OsNames.map((osName) => toOsTableData(osName))}
+						rowKey="os_name"
+						onRowClick={(row: any) => {
+							selectedByUser['os'] = row['os_name'];
 							props.setModalState({
 								board: true,
 								os: true,
@@ -306,18 +332,27 @@ const OdroidImageSelector = ({
 								image: false,
 							});
 						}}
-					>
-						Next
-					</Button>
+					/>
 				);
 				break;
 			}
 			case 2: {
+				const mirrorNames = Array.from(MirrorServers.keys());
+				const toMirrorServerTableData = (mirrorName: string) => {
+					return {
+						mirror_server_name: mirrorName,
+					};
+				};
+
 				contents = (
-					<Button
-						m={2}
-						primary
-						onClick={() => {
+					<OdroidImagesTable
+						columns={odroidMirrorServersTableColumns}
+						data={mirrorNames.map((mirrorName) =>
+							toMirrorServerTableData(mirrorName),
+						)}
+						rowKey="mirror_server_name"
+						onRowClick={(row: any) => {
+							selectedByUser['mirrorServer'] = row['mirror_server_name'];
 							props.setModalState({
 								board: true,
 								os: true,
@@ -325,15 +360,19 @@ const OdroidImageSelector = ({
 								image: true,
 							});
 						}}
-					>
-						Next
-					</Button>
+					/>
 				);
 				break;
 			}
 			case 3: {
+				const OsByBoard = ImageNests.get(selectedByUser['board']);
+				let targetUrl = MirrorServers.get(
+					selectedByUser['mirrorServer'],
+				) as string;
+				targetUrl += OsByBoard?.get(selectedByUser['os']) as string;
+
 				contents = (
-					<Async promiseFn={async () => odroidImageFetch()}>
+					<Async promiseFn={async () => odroidImageFetch(targetUrl)}>
 						{({ data, error, isLoading }) => {
 							if (isLoading) return 'Loading...';
 							if (error) return { error };
@@ -387,6 +426,30 @@ const OdroidImageSelector = ({
 		);
 	};
 
+	const odroidBoardsTableColumns: any = [
+		{
+			field: 'board_name',
+			label: 'Board Name',
+			render: (value: string) => <code>{value}</code>,
+		},
+	];
+
+	const odroidOsTableColumns: any = [
+		{
+			field: 'os_name',
+			label: 'OS Name',
+			render: (value: string) => <code>{value}</code>,
+		},
+	];
+
+	const odroidMirrorServersTableColumns: any = [
+		{
+			field: 'mirror_server_name',
+			label: 'Mirror Server Name',
+			render: (value: string) => <code>{value}</code>,
+		},
+	];
+
 	const odroidImagesTableColumns: any = [
 		{
 			field: 'file_name',
@@ -405,7 +468,7 @@ const OdroidImageSelector = ({
 		},
 	];
 
-	class OsSelectModal extends React.Component<{}, OsSelectModalState> {
+	class ImageSelectModal extends React.Component<{}, ImageSelectModalState> {
 		constructor(props: {}) {
 			super(props);
 
@@ -421,7 +484,7 @@ const OdroidImageSelector = ({
 
 		public shouldComponentUpdate(
 			_nextProps: {},
-			nextState: OsSelectModalState,
+			nextState: ImageSelectModalState,
 		) {
 			if (nextState['image']) {
 				isComplete = [true, true, true, false];
@@ -430,7 +493,7 @@ const OdroidImageSelector = ({
 			} else if (nextState['os']) {
 				isComplete = [true, false, false, false];
 			} else {
-				console.log('Something goes wrong, OsSelectModal will not render.');
+				console.log('Something goes wrong, ImageSelectModal will not render.');
 				return false;
 			}
 
@@ -439,7 +502,7 @@ const OdroidImageSelector = ({
 			return true;
 		}
 
-		private update(nextState: OsSelectModalState) {
+		private update(nextState: ImageSelectModalState) {
 			this.setState(nextState);
 		}
 
@@ -490,7 +553,7 @@ const OdroidImageSelector = ({
 				width="100%"
 				height="calc(100% - 15px)"
 			>
-				<OsSelectModal />
+				<ImageSelectModal />
 			</ScrollableFlex>
 		</Modal>
 	);
