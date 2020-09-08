@@ -25,8 +25,6 @@ import * as React from 'react';
 import { Async } from 'react-async';
 import {
 	ButtonProps,
-	Card as BaseCard,
-	Input,
 	Modal,
 	Txt,
 	Flex,
@@ -62,44 +60,6 @@ import ImageSvg from '../../../assets/image.svg';
 
 import { OdroidImageInfo, odroidImageFetch } from '../odroid/fetch';
 import { MirrorServers, ImageNests } from '../odroid/addresses';
-
-const recentUrlImagesKey = 'recentUrlImages';
-
-function normalizeRecentUrlImages(urls: any): string[] {
-	if (!Array.isArray(urls)) {
-		urls = [];
-	}
-	return _.chain(urls)
-		.filter(_.isString)
-		.reject(_.isEmpty)
-		.uniq()
-		.takeRight(5)
-		.value();
-}
-
-function getRecentUrlImages(): string[] {
-	let urls = [];
-	try {
-		urls = JSON.parse(localStorage.getItem(recentUrlImagesKey) || '[]');
-	} catch {
-		// noop
-	}
-	return normalizeRecentUrlImages(urls);
-}
-
-function setRecentUrlImages(urls: string[]) {
-	localStorage.setItem(
-		recentUrlImagesKey,
-		JSON.stringify(normalizeRecentUrlImages(urls)),
-	);
-}
-
-const Card = styled(BaseCard)`
-	hr {
-		margin: 5px 0;
-	}
-`;
-
 // TODO move these styles to rendition
 const ModalText = styled.p`
 	a {
@@ -118,72 +78,6 @@ function getState() {
 		imageSize: selectionState.getImageSize(),
 	};
 }
-
-const URLSelector = ({ done }: { done: (imageURL: string) => void }) => {
-	const [imageURL, setImageURL] = React.useState('');
-	const [recentImages, setRecentImages]: [
-		string[],
-		(value: React.SetStateAction<string[]>) => void,
-	] = React.useState([]);
-	const [loading, setLoading] = React.useState(false);
-	React.useEffect(() => {
-		const fetchRecentUrlImages = async () => {
-			const recentUrlImages: string[] = await getRecentUrlImages();
-			setRecentImages(recentUrlImages);
-		};
-		fetchRecentUrlImages();
-	}, []);
-	return (
-		<Modal
-			primaryButtonProps={{
-				disabled: loading,
-			}}
-			done={async () => {
-				setLoading(true);
-				const sanitizedRecentUrls = normalizeRecentUrlImages([
-					...recentImages,
-					imageURL,
-				]);
-				setRecentUrlImages(sanitizedRecentUrls);
-				await done(imageURL);
-			}}
-		>
-			<label style={{ width: '100%' }}>
-				<Txt mb="10px" fontSize="20px">
-					Use Image URL
-				</Txt>
-				<Input
-					value={imageURL}
-					placeholder="Enter a valid URL"
-					type="text"
-					onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-						setImageURL(evt.target.value)
-					}
-				/>
-			</label>
-			{!_.isEmpty(recentImages) && (
-				<div>
-					Recent
-					<Card
-						style={{ padding: '10px 15px' }}
-						rows={_.map(recentImages, (recent) => (
-							<Txt
-								key={recent}
-								onClick={() => {
-									setImageURL(recent);
-								}}
-							>
-								<span>
-									{_.last(_.split(recent, '/'))} - {recent}
-								</span>
-							</Txt>
-						))}
-					/>
-				</div>
-			)}
-		</Modal>
-	);
-};
 
 const OdroidImageSelector = ({
 	done,
@@ -595,7 +489,6 @@ interface SourceSelectorState {
 	imageSize: number;
 	warning: { message: string; title: string | null } | null;
 	showImageDetails: boolean;
-	showURLSelector: boolean;
 	showOdroidImageSelector: boolean;
 }
 
@@ -612,12 +505,10 @@ export class SourceSelector extends React.Component<
 			...getState(),
 			warning: null,
 			showImageDetails: false,
-			showURLSelector: false,
 			showOdroidImageSelector: false,
 		};
 
 		this.openImageSelector = this.openImageSelector.bind(this);
-		this.openURLSelector = this.openURLSelector.bind(this);
 		this.openOdroidImageSelector = this.openOdroidImageSelector.bind(this);
 		this.reselectImage = this.reselectImage.bind(this);
 		this.onSelectImage = this.onSelectImage.bind(this);
@@ -801,14 +692,6 @@ export class SourceSelector extends React.Component<
 		}
 	}
 
-	private openURLSelector() {
-		analytics.logEvent('Open image URL selector');
-
-		this.setState({
-			showURLSelector: true,
-		});
-	}
-
 	private openOdroidImageSelector() {
 		analytics.logEvent('Open Odroid image URL selector');
 
@@ -840,11 +723,7 @@ export class SourceSelector extends React.Component<
 	// TODO add a visual change when dragging a file over the selector
 	public render() {
 		const { flashing } = this.props;
-		const {
-			showImageDetails,
-			showURLSelector,
-			showOdroidImageSelector,
-		} = this.state;
+		const { showImageDetails, showOdroidImageSelector } = this.state;
 
 		const hasImage = selectionState.hasImage();
 
@@ -897,14 +776,6 @@ export class SourceSelector extends React.Component<
 										onClick: this.openImageSelector,
 										label: 'Flash from file',
 										icon: <FontAwesomeIcon icon={faFile} />,
-									}}
-								/>
-								<FlowSelector
-									key="Flash from URL"
-									flow={{
-										onClick: this.openURLSelector,
-										label: 'Flash from URL',
-										icon: <FontAwesomeIcon icon={faLink} />,
 									}}
 								/>
 								<FlowSelector
@@ -963,30 +834,6 @@ export class SourceSelector extends React.Component<
 							<Txt.span>{imagePath}</Txt.span>
 						</Txt.p>
 					</Modal>
-				)}
-
-				{showURLSelector && (
-					<URLSelector
-						done={async (imageURL: string) => {
-							// Avoid analytics and selection state changes
-							// if no file was resolved from the dialog.
-							if (!imageURL) {
-								analytics.logEvent('URL selector closed');
-								this.setState({
-									showURLSelector: false,
-								});
-								return;
-							}
-
-							await this.selectImageByPath({
-								imagePath: imageURL,
-								SourceType: sourceDestination.Http,
-							});
-							this.setState({
-								showURLSelector: false,
-							});
-						}}
-					/>
 				)}
 				{showOdroidImageSelector && (
 					<OdroidImageSelector
