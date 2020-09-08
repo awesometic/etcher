@@ -191,23 +191,11 @@ const OdroidImageSelector = ({
 	done: (imageURL: string) => void;
 }) => {
 	const [imageURL, setImageURL] = React.useState('');
-	const [recentImages, setRecentImages]: [
-		string[],
-		(value: React.SetStateAction<string[]>) => void,
-	] = React.useState([]);
 
 	// If imageURL variable has more than 7 letters, "http://".
 	const isImageUrlSet = () => {
 		return imageURL.length > 7;
 	};
-
-	React.useEffect(() => {
-		const fetchRecentUrlImages = async () => {
-			const recentUrlImages: string[] = await getRecentUrlImages();
-			setRecentImages(recentUrlImages);
-		};
-		fetchRecentUrlImages();
-	}, []);
 
 	const ScrollableFlex = styled(Flex)`
 		overflow: auto;
@@ -269,7 +257,7 @@ const OdroidImageSelector = ({
 		image: boolean;
 	}
 
-	let selectedByUser = {
+	const selectedByUser = {
 		board: '',
 		os: '',
 		mirrorServer: '',
@@ -544,11 +532,6 @@ const OdroidImageSelector = ({
 				height: '420px',
 			}}
 			done={async () => {
-				const sanitizedRecentUrls = normalizeRecentUrlImages([
-					...recentImages,
-					imageURL,
-				]);
-				setRecentUrlImages(sanitizedRecentUrls);
 				await done(imageURL);
 			}}
 		>
