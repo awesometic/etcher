@@ -15,22 +15,17 @@
  */
 
 export const MirrorServers = new Map<string, string>([
-	['KOREA', 'https://dn.odroid.com/'],
-	['US_WEST', 'https://odroid.in/mirror/dn.odroid.com/'],
-	['EU', 'https://de.eu.odroid.in/mirror/dn.odroid.com/'],
+	['US_WEST', 'https://odroid.in/ubuntu_20.04lts/'],
+	['EU', 'http://de.eu.odroid.in/ubuntu_20.04lts/'],
 ]);
 
 export const ImageNests = new Map<string, Map<string, string>>([
-	['XU3_XU4', new Map([['', '']])],
-	['C0_C1', new Map([['', '']])],
-	['C2', new Map([['', '']])],
-	['N2', new Map([['', '']])],
 	[
-		'C4',
-		new Map([
-			['UBUNTU', 'S905X3/ODROID-C4/Ubuntu/'],
-			['ANDROID_PIE_64', 'S905X3/ODROID-C4/Android/pie/64/'],
-			['ANDROID_PIE_32', 'S905X3/ODROID-C4/Android/pie/32/'],
-		]),
+		'XU3/XU4/MC1/HC1/HC2',
+		new Map([['Ubuntu 20.04 LTS', 'XU3_XU4_MC1_HC1_HC2/']]),
 	],
+	['C0/C1/C1+', new Map([['Ubuntu 20.04 LTS', 'c0_c1/']])],
+	['C2', new Map([['Ubuntu 20.04 LTS', 'c2/']])],
+	['N2/N2+', new Map([['Ubuntu 20.04 LTS', 'n2/']])],
+	['C4', new Map([['Ubuntu 20.04 LTS', 'c4/']])],
 ]);
