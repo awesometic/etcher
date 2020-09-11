@@ -27,7 +27,6 @@ import {
 	ButtonProps,
 	Modal,
 	Txt,
-	Flex,
 	Table,
 	Step,
 	Steps,
@@ -90,19 +89,6 @@ const OdroidImageSelector = ({
 	const isImageUrlSet = () => {
 		return imageURL.length > 7;
 	};
-
-	const ScrollableFlex = styled(Flex)`
-		overflow: auto;
-
-		::-webkit-scrollbar {
-			display: none;
-		}
-
-		> div > div {
-			/* This is required for the sticky table header in TargetsTable */
-			overflow-x: visible;
-		}
-	`;
 
 	const OdroidImagesTable = styled(({ refFn, ...props }) => {
 		return (
@@ -171,21 +157,23 @@ const OdroidImageSelector = ({
 				};
 
 				contents = (
-					<OdroidImagesTable
-						columns={odroidBoardsTableColumns}
-						data={boardNames.map((boardName) => toBoardTableData(boardName))}
-						rowKey="board_name"
-						onRowClick={(row: any) => {
-							console.log('Clicked: ' + row['board_name']);
-							selectedByUser['board'] = row['board_name'];
-							props.setModalState({
-								board: true,
-								os: true,
-								mirrorServer: false,
-								image: false,
-							});
-						}}
-					/>
+					<>
+						<OdroidImagesTable
+							columns={odroidBoardsTableColumns}
+							data={boardNames.map((boardName) => toBoardTableData(boardName))}
+							rowKey="board_name"
+							onRowClick={(row: any) => {
+								console.log('Clicked: ' + row['board_name']);
+								selectedByUser['board'] = row['board_name'];
+								props.setModalState({
+									board: true,
+									os: true,
+									mirrorServer: false,
+									image: false,
+								});
+							}}
+						/>
+					</>
 				);
 				break;
 			}
@@ -397,12 +385,10 @@ const OdroidImageSelector = ({
 
 			if (isImageUrlSet()) {
 				contents = (
-					<Flex width="100%" height="100%">
-						<Spinner
-							label="Downloading... Please wait for a moment..."
-							emphasized
-						/>
-					</Flex>
+					<Spinner
+						label="Downloading... Please wait for a moment..."
+						emphasized
+					/>
 				);
 			} else {
 				contents = (
@@ -429,13 +415,7 @@ const OdroidImageSelector = ({
 				await done(imageURL);
 			}}
 		>
-			<ScrollableFlex
-				flexDirection="column"
-				width="100%"
-				height="calc(100% - 15px)"
-			>
-				<ImageSelectModal />
-			</ScrollableFlex>
+			<ImageSelectModal />
 		</Modal>
 	);
 };
