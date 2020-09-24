@@ -89,6 +89,7 @@ const OdroidImageSelector = ({
 	cancel: () => void;
 }) => {
 	const [imageURL, setImageURL] = React.useState('');
+	const [loading, setLoading] = React.useState(false);
 
 	// If imageURL variable has more than 7 letters, "http://".
 	const isImageUrlSet = () => {
@@ -418,13 +419,15 @@ const OdroidImageSelector = ({
 		<Modal
 			cancel={cancel}
 			primaryButtonProps={{
-				disabled: isImageUrlSet(),
+				disabled: loading || !imageURL,
 			}}
 			style={{
 				width: '780px',
 				height: '420px',
 			}}
+			action={loading ? <Spinner /> : 'OK'}
 			done={async () => {
+				setLoading(true);
 				await done(imageURL);
 			}}
 		>
@@ -529,7 +532,7 @@ export class SourceSelector extends React.Component<
 		await this.selectImageByPath({
 			imagePath,
 			SourceType: isURL ? sourceDestination.Http : sourceDestination.File,
-		});
+		}).promise;
 	}
 
 	private reselectImage() {
@@ -585,74 +588,97 @@ export class SourceSelector extends React.Component<
 		}
 	}
 
-	private async selectImageByPath({ imagePath, SourceType }: SourceOptions) {
-		try {
-			imagePath = await replaceWindowsNetworkDriveLetter(imagePath);
-		} catch (error) {
-			analytics.logException(error);
-		}
+	private selectImageByPath({
+		imagePath,
+		SourceType,
+	}: SourceOptions): { promise: Promise<void>; cancel: () => void } {
+		let cancelled = false;
+		return {
+			cancel: () => {
+				cancelled = true;
+			},
+			promise: (async () => {
+				try {
+					imagePath = await replaceWindowsNetworkDriveLetter(imagePath);
+				} catch (error) {
+					analytics.logException(error);
+				}
+				if (cancelled) {
+					return;
+				}
 
-		let source;
-		if (SourceType === sourceDestination.File) {
-			source = new sourceDestination.File({
-				path: imagePath,
-			});
-		} else {
-			if (
-				!imagePath.startsWith('https://') &&
-				!imagePath.startsWith('http://')
-			) {
-				const invalidImageError = errors.createUserError({
-					title: 'Unsupported protocol',
-					description: messages.error.unsupportedProtocol(),
-				});
+				let source;
+				if (SourceType === sourceDestination.File) {
+					source = new sourceDestination.File({
+						path: imagePath,
+					});
+				} else {
+					if (
+						!imagePath.startsWith('https://') &&
+						!imagePath.startsWith('http://')
+					) {
+						const invalidImageError = errors.createUserError({
+							title: 'Unsupported protocol',
+							description: messages.error.unsupportedProtocol(),
+						});
 
-				osDialog.showError(invalidImageError);
-				analytics.logEvent('Unsupported protocol', { path: imagePath });
-				return;
-			}
-			source = new sourceDestination.Http({ url: imagePath });
-		}
+						osDialog.showError(invalidImageError);
+						analytics.logEvent('Unsupported protocol', { path: imagePath });
+						return;
+					}
+					source = new sourceDestination.Http({ url: imagePath });
+				}
 
-		try {
-			const innerSource = await source.getInnerSource();
-			const metadata = (await innerSource.getMetadata()) as sourceDestination.Metadata & {
-				hasMBR: boolean;
-				partitions: MBRPartition[] | GPTPartition[];
-				path: string;
-				extension: string;
-			};
-			const partitionTable = await innerSource.getPartitionTable();
-			if (partitionTable) {
-				metadata.hasMBR = true;
-				metadata.partitions = partitionTable.partitions;
-			} else {
-				metadata.hasMBR = false;
-			}
-			metadata.path = imagePath;
-			metadata.extension = path.extname(imagePath).slice(1);
-			this.selectImage(metadata);
-			this.afterSelected({
-				imagePath,
-				SourceType,
-			});
-		} catch (error) {
-			const imageError = errors.createUserError({
-				title: 'Error opening image',
-				description: messages.error.openImage(
-					path.basename(imagePath),
-					error.message,
-				),
-			});
-			osDialog.showError(imageError);
-			analytics.logException(error);
-		} finally {
-			try {
-				await source.close();
-			} catch (error) {
-				// Noop
-			}
-		}
+				try {
+					const innerSource = await source.getInnerSource();
+					if (cancelled) {
+						return;
+					}
+					const metadata = (await innerSource.getMetadata()) as sourceDestination.Metadata & {
+						hasMBR: boolean;
+						partitions: MBRPartition[] | GPTPartition[];
+						path: string;
+						extension: string;
+					};
+					if (cancelled) {
+						return;
+					}
+					const partitionTable = await innerSource.getPartitionTable();
+					if (cancelled) {
+						return;
+					}
+					if (partitionTable) {
+						metadata.hasMBR = true;
+						metadata.partitions = partitionTable.partitions;
+					} else {
+						metadata.hasMBR = false;
+					}
+					metadata.path = imagePath;
+					metadata.extension = path.extname(imagePath).slice(1);
+					this.selectImage(metadata);
+					this.afterSelected({
+						imagePath,
+						SourceType,
+					});
+				} catch (error) {
+					const imageError = errors.createUserError({
+						title: 'Error opening image',
+						description: messages.error.openImage(
+							path.basename(imagePath),
+							error.message,
+						),
+					});
+					osDialog.showError(imageError);
+					analytics.logException(error);
+				} finally {
+					try {
+						await source.close();
+					} catch (error) {
+						// Noop
+					}
+				}
+			})(),
+		};
 	}
 
 	private async openImageSelector() {
@@ -666,22 +692,22 @@ export class SourceSelector extends React.Component<
 				analytics.logEvent('Image selector closed');
 				return;
 			}
-			this.selectImageByPath({
+			await this.selectImageByPath({
 				imagePath,
 				SourceType: sourceDestination.File,
-			});
+			}).promise;
 		} catch (error) {
 			exceptionReporter.report(error);
 		}
 	}
 
-	private onDrop(event: React.DragEvent<HTMLDivElement>) {
+	private async onDrop(event: React.DragEvent<HTMLDivElement>) {
 		const [file] = event.dataTransfer.files;
 		if (file) {
-			this.selectImageByPath({
+			await this.selectImageByPath({
 				imagePath: file.path,
 				SourceType: sourceDestination.File,
-			});
+			}).promise;
 		}
 	}
 
@@ -725,6 +751,9 @@ export class SourceSelector extends React.Component<
 		const imageName = selectionState.getImageName();
 		const imageSize = selectionState.getImageSize();
 		const imageLogo = selectionState.getImageLogo();
+		let cancelURLSelection = () => {
+			// noop
+		};
 
 		return (
 			<>
@@ -826,6 +855,7 @@ export class SourceSelector extends React.Component<
 				{showOdroidImageSelector && (
 					<OdroidImageSelector
 						cancel={() => {
+							cancelURLSelection();
 							this.setState({
 								showOdroidImageSelector: false,
 							});
@@ -835,16 +865,17 @@ export class SourceSelector extends React.Component<
 							// if no file was resolved from the dialog.
 							if (!imageURL) {
 								analytics.logEvent('URL selector closed');
-								this.setState({
-									showOdroidImageSelector: false,
-								});
-								return;
+							} else {
+								let promise;
+								({
+									promise,
+									cancel: cancelURLSelection,
+								} = this.selectImageByPath({
+									imagePath: imageURL,
+									SourceType: sourceDestination.Http,
+								}));
+								await promise;
 							}
-
-							await this.selectImageByPath({
-								imagePath: imageURL,
-								SourceType: sourceDestination.Http,
-							});
 							this.setState({
 								showOdroidImageSelector: false,
 							});
