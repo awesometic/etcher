@@ -102,7 +102,9 @@ export async function odroidImageFetch(url: string) {
 			const fileName = $(tdList[1]).text().trim();
 			const fileSize = $(tdList[3]).text().trim();
 
-			if (!fileSize.includes('M') && !fileSize.includes('G')) return;
+			if (!fileSize.includes('M') && !fileSize.includes('G')) {
+				return;
+			}
 
 			images.push(
 				new OdroidImageInfo({

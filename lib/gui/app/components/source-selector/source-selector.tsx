@@ -24,13 +24,16 @@ import { GPTPartition, MBRPartition } from 'partitioninfo';
 import * as path from 'path';
 import * as React from 'react';
 import { Async } from 'react-async';
-import { Step, Steps } from 'rendition';
-import { Flex } from 'rendition/dist_esm5/components/Flex';
-import { ButtonProps } from 'rendition/dist_esm5/components/Button';
-import SmallModal from 'rendition/dist_esm5/components/Modal';
-import Txt from 'rendition/dist_esm5/components/Txt';
-import Table from 'rendition/dist_esm5/components/Table';
-import Spinner from 'rendition/dist_esm5/components/Spinner';
+import {
+	Flex,
+	ButtonProps,
+	Modal as SmallModal,
+	Txt,
+	Step,
+	Steps,
+	Table,
+	Spinner,
+} from 'rendition';
 import styled from 'styled-components';
 
 import * as errors from '../../../../shared/errors';
@@ -126,7 +129,9 @@ const OdroidImageSelector = ({
 		let index = 0;
 
 		isComplete.forEach((element) => {
-			if (element) index++;
+			if (element) {
+				index++;
+			}
 		});
 
 		return index;
@@ -249,10 +254,14 @@ const OdroidImageSelector = ({
 				contents = (
 					<Async promiseFn={async () => odroidImageFetch(targetUrl)}>
 						{({ data, error, isLoading }) => {
-							if (isLoading) return 'Loading...';
-							if (error) return { error };
+							if (isLoading) {
+								return 'Loading...';
+							}
+							if (error) {
+								return { error };
+							}
 
-							if (data)
+							if (data) {
 								return (
 									<OdroidImagesTable
 										columns={odroidImagesTableColumns}
@@ -269,6 +278,7 @@ const OdroidImageSelector = ({
 										}}
 									/>
 								);
+							}
 						}}
 					</Async>
 				);
