@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { faFile, faLink } from '@fortawesome/free-solid-svg-icons';
+import {
+	faFile,
+	faLink,
+	faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { sourceDestination } from 'etcher-sdk';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
@@ -25,8 +29,9 @@ import * as React from 'react';
 import { Async } from 'react-async';
 import {
 	ButtonProps,
-	Modal,
+	Modal as SmallModal,
 	Txt,
+	Flex,
 	Table,
 	Step,
 	Steps,
@@ -47,6 +52,7 @@ import { replaceWindowsNetworkDriveLetter } from '../../os/windows-network-drive
 import {
 	ChangeButton,
 	DetailsText,
+	Modal,
 	StepButton,
 	StepNameButton,
 } from '../../styled-components';
@@ -80,8 +86,10 @@ function getState() {
 
 const OdroidImageSelector = ({
 	done,
+	cancel,
 }: {
 	done: (imageURL: string) => void;
+	cancel: () => void;
 }) => {
 	const [imageURL, setImageURL] = React.useState('');
 
@@ -404,6 +412,7 @@ const OdroidImageSelector = ({
 
 	return (
 		<Modal
+			cancel={cancel}
 			primaryButtonProps={{
 				disabled: isImageUrlSet(),
 			}}
@@ -512,7 +521,7 @@ export class SourceSelector extends React.Component<
 
 	private async onSelectImage(_event: IpcRendererEvent, imagePath: string) {
 		const isURL =
-			_.startsWith(imagePath, 'https://') || _.startsWith(imagePath, 'http://');
+			imagePath.startsWith('https://') || imagePath.startsWith('http://');
 		await this.selectImageByPath({
 			imagePath,
 			SourceType: isURL ? sourceDestination.Http : sourceDestination.File,
@@ -586,8 +595,8 @@ export class SourceSelector extends React.Component<
 			});
 		} else {
 			if (
-				!_.startsWith(imagePath, 'https://') &&
-				!_.startsWith(imagePath, 'http://')
+				!imagePath.startsWith('https://') &&
+				!imagePath.startsWith('http://')
 			) {
 				const invalidImageError = errors.createUserError({
 					title: 'Unsupported protocol',
@@ -715,70 +724,67 @@ export class SourceSelector extends React.Component<
 
 		return (
 			<>
-				<div
-					className="box text-center relative"
+				<Flex
+					flexDirection="column"
+					alignItems="center"
 					onDrop={this.onDrop}
 					onDragEnter={this.onDragEnter}
 					onDragOver={this.onDragOver}
 				>
-					<div className="center-block">
-						<SVGIcon
-							contents={imageLogo}
-							fallback={<ImageSvg width="40px" height="40px" />}
-						/>
-					</div>
+					<SVGIcon
+						contents={imageLogo}
+						fallback={ImageSvg}
+						style={{
+							marginBottom: 30,
+						}}
+					/>
 
-					<div className="space-vertical-large">
-						{hasImage ? (
-							<>
-								<StepNameButton
-									plain
-									fontSize={16}
-									onClick={this.showSelectedImageDetails}
-									tooltip={imageName || imageBasename}
-								>
-									{middleEllipsis(imageName || imageBasename, 20)}
-								</StepNameButton>
-								{!flashing && (
-									<ChangeButton plain mb={14} onClick={this.reselectImage}>
-										Remove
-									</ChangeButton>
-								)}
-								<DetailsText>
-									{shared.bytesToClosestUnit(imageSize)}
-								</DetailsText>
-							</>
-						) : (
-							<>
-								<FlowSelector
-									key="Flash from file"
-									flow={{
-										onClick: this.openImageSelector,
-										label: 'Flash from file',
-										icon: <FontAwesomeIcon icon={faFile} />,
-									}}
-								/>
-								<FlowSelector
-									key="Odroid images"
-									flow={{
-										onClick: this.openOdroidImageSelector,
-										label: 'Odroid images',
-										icon: <FontAwesomeIcon icon={faLink} />,
-									}}
-								/>
-							</>
-						)}
-					</div>
-				</div>
+					{hasImage ? (
+						<>
+							<StepNameButton
+								plain
+								onClick={this.showSelectedImageDetails}
+								tooltip={imageName || imageBasename}
+							>
+								{middleEllipsis(imageName || imageBasename, 20)}
+							</StepNameButton>
+							{!flashing && (
+								<ChangeButton plain mb={14} onClick={this.reselectImage}>
+									Remove
+								</ChangeButton>
+							)}
+							<DetailsText>{shared.bytesToClosestUnit(imageSize)}</DetailsText>
+						</>
+					) : (
+						<>
+							<FlowSelector
+								key="Flash from file"
+								flow={{
+									onClick: this.openImageSelector,
+									label: 'Flash from file',
+									icon: <FontAwesomeIcon icon={faFile} />,
+								}}
+							/>
+							<FlowSelector
+								key="Flash Odroid image"
+								flow={{
+									onClick: this.openOdroidImageSelector,
+									label: 'Flash Odroid image',
+									icon: <FontAwesomeIcon icon={faLink} />,
+								}}
+							/>
+						</>
+					)}
+				</Flex>
 
 				{this.state.warning != null && (
-					<Modal
+					<SmallModal
 						titleElement={
 							<span>
-								<span
-									style={{ color: '#d9534f' }}
-									className="glyphicon glyphicon-exclamation-sign"
-								></span>{' '}
+								<FontAwesomeIcon
+									style={{ color: '#fca321' }}
+									icon={faExclamationTriangle}
+								/>{' '}
 								<span>{this.state.warning.title}</span>
 							</span>
 						}
@@ -795,11 +801,11 @@ export class SourceSelector extends React.Component<
 						<ModalText
 							dangerouslySetInnerHTML={{ __html: this.state.warning.message }}
 						/>
-					</Modal>
+					</SmallModal>
 				)}
 
 				{showImageDetails && (
-					<Modal
+					<SmallModal
 						title="Image"
 						done={() => {
 							this.setState({ showImageDetails: false });
@@ -813,10 +819,16 @@ export class SourceSelector extends React.Component<
 							<Txt.span bold>Path: </Txt.span>
 							<Txt.span>{imagePath}</Txt.span>
 						</Txt.p>
-					</Modal>
+					</SmallModal>
 				)}
+
 				{showOdroidImageSelector && (
 					<OdroidImageSelector
+						cancel={() => {
+							this.setState({
+								showOdroidImageSelector: false,
+							});
+						}}
 						done={async (imageURL: string) => {
 							// Avoid analytics and selection state changes
 							// if no file was resolved from the dialog.
