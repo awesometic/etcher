@@ -91,11 +91,6 @@ const OdroidImageSelector = ({
 	const [imageURL, setImageURL] = React.useState('');
 	const [loading, setLoading] = React.useState(false);
 
-	// If imageURL variable has more than 7 letters, "http://".
-	const isImageUrlSet = () => {
-		return imageURL.length > 7;
-	};
-
 	const OdroidImagesTable = styled(({ refFn, ...props }) => {
 		return (
 			<div>
@@ -396,7 +391,7 @@ const OdroidImageSelector = ({
 		public render() {
 			let contents = null;
 
-			if (isImageUrlSet()) {
+			if (loading) {
 				contents = (
 					<Spinner
 						label="Downloading... Please wait for a moment..."
@@ -404,12 +399,28 @@ const OdroidImageSelector = ({
 					/>
 				);
 			} else {
-				contents = (
-					<>
-						<OrderedStepsWrapper bordered={false} />
-						<ShowContents setModalState={this.update} />
-					</>
-				);
+				if (!imageURL) {
+					contents = (
+						<>
+							<OrderedStepsWrapper bordered={false} />
+							<ShowContents setModalState={this.update} />
+						</>
+					);
+				} else {
+					contents = (
+						<>
+							<Txt.p>
+								<Txt.span>Selected link is: </Txt.span>
+								<Txt.span monospace bold>
+									{imageURL}
+								</Txt.span>
+							</Txt.p>
+							<Txt.p>
+								<Txt.span>Click OK button to download.</Txt.span>
+							</Txt.p>
+						</>
+					);
+				}
 			}
 			return contents;
 		}
