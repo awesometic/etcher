@@ -51,6 +51,7 @@ import {
 	ChangeButton,
 	DetailsText,
 	Modal,
+	ScrollableFlex,
 	StepButton,
 	StepNameButton,
 } from '../../styled-components';
@@ -108,7 +109,9 @@ const OdroidImageSelector = ({
 			</div>
 		);
 	})`
-		[data-display='table-head'] [data-display='table-cell'] {
+		[data-display='table-head']
+			> [data-display='table-row']
+			> [data-display='table-cell'] {
 			position: sticky;
 			top: 0;
 			background-color: ${(props) => props.theme.colors.quartenary.light};
@@ -261,7 +264,16 @@ const OdroidImageSelector = ({
 					<Async promiseFn={async () => odroidImageFetch(targetUrl)}>
 						{({ data, error, isLoading }) => {
 							if (isLoading) {
-								return 'Loading...';
+								return (
+									<Flex
+										flexDirection="column"
+										justifyContent="center"
+										alignItems="center"
+										height="100%"
+									>
+										<Txt.p bold>Loading...</Txt.p>
+									</Flex>
+								);
 							}
 							if (error) {
 								return { error };
@@ -305,7 +317,7 @@ const OdroidImageSelector = ({
 		);
 	};
 
-	const OrderedStepsWrapper = ({ ...props }) => {
+	const OrderedSteps = ({ ...props }) => {
 		return (
 			<Steps
 				ordered
@@ -324,6 +336,11 @@ const OdroidImageSelector = ({
 			label: 'Board Name',
 			render: (value: string) => <code>{value}</code>,
 		},
+		{
+			field: '',
+			label: '',
+			render: '',
+		},
 	];
 
 	const odroidOsTableColumns: any = [
@@ -332,6 +349,11 @@ const OdroidImageSelector = ({
 			label: 'OS Name',
 			render: (value: string) => <code>{value}</code>,
 		},
+		{
+			field: '',
+			label: '',
+			render: '',
+		},
 	];
 
 	const odroidMirrorServersTableColumns: any = [
@@ -339,6 +361,11 @@ const OdroidImageSelector = ({
 			field: 'mirror_server_name',
 			label: 'Mirror Server Name',
 			render: (value: string) => <code>{value}</code>,
+		},
+		{
+			field: '',
+			label: '',
+			render: '',
 		},
 	];
 
@@ -403,31 +430,67 @@ const OdroidImageSelector = ({
 
 			if (loading) {
 				contents = (
-					<Spinner
-						label="Downloading... Please wait for a moment..."
-						emphasized
-					/>
+					<Flex
+						flexDirection="column"
+						justifyContent="center"
+						alignItems="center"
+						height="100%"
+					>
+						<Spinner
+							label="Downloading... Please wait for a moment..."
+							emphasized
+						/>
+					</Flex>
 				);
 			} else {
 				if (!imageURL) {
 					contents = (
 						<>
-							<OrderedStepsWrapper bordered={false} />
-							<ShowContents setModalState={this.update} />
+							<div
+								style={{
+									overflow: 'hidden',
+								}}
+							>
+								<Flex
+									flexDirection="column"
+									justifyContent="flex-end"
+									alignItems="center"
+									width="100%"
+									height="50px"
+								>
+									<OrderedSteps bordered={false} />
+								</Flex>
+							</div>
+							<ScrollableFlex
+								flexDirection="column"
+								alignItems="center"
+								width="100%"
+								height="80%"
+							>
+								<ShowContents setModalState={this.update} />
+							</ScrollableFlex>
 						</>
 					);
 				} else {
 					contents = (
 						<>
-							<Txt.p>
-								<Txt.span>Selected link is: </Txt.span>
-								<Txt.span monospace bold>
-									{imageURL}
-								</Txt.span>
-							</Txt.p>
-							<Txt.p>
-								<Txt.span>Click OK button to download.</Txt.span>
-							</Txt.p>
+							<Flex
+								flexDirection="column"
+								justifyContent="center"
+								alignItems="center"
+								height="100%"
+							>
+								<>
+									<Txt.p>
+										<Txt.span monospace bold>
+											{imageURL}
+										</Txt.span>
+									</Txt.p>
+									<Txt.p>
+										<Txt.span>Click OK button to download.</Txt.span>
+									</Txt.p>
+								</>
+							</Flex>
 						</>
 					);
 				}
@@ -438,21 +501,35 @@ const OdroidImageSelector = ({
 
 	return (
 		<Modal
+			titleElement={
+				<Flex alignItems="baseline" mb={18}>
+					<Txt fontSize={24} align="left">
+						Odroid images
+					</Txt>
+					<Txt
+						fontSize={11}
+						ml={12}
+						color="#5b82a7"
+						style={{ fontWeight: 600 }}
+					>
+						Select an image file that you want to flash to your SD card
+					</Txt>
+				</Flex>
+			}
+			titleDetails={<Txt fontSize={11}>Select an image file</Txt>}
 			cancel={cancel}
 			primaryButtonProps={{
 				disabled: loading || !imageURL,
 			}}
-			style={{
-				width: '780px',
-				height: '420px',
-			}}
-			action={loading ? <Spinner /> : 'OK'}
+			action="OK"
 			done={async () => {
 				setLoading(true);
 				await done(imageURL);
 			}}
 		>
-			<ImageSelectModal />
+			<Flex flexDirection="column" width="100%" height="90%">
+				<ImageSelectModal />
+			</Flex>
 		</Modal>
 	);
 };
