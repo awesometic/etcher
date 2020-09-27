@@ -1,6 +1,6 @@
-appId: io.balena.etcher
-copyright: Copyright 2016-2020 Balena Ltd
-productName: balenaEtcher
+appId: net.awesometic.odroid-etcher
+copyright: Copyright 2020 Deokgyu Yang <secugyu@gmail.com>
+productName: odroidEtcher
 npmRebuild: true
 nodeGypRebuild: false
 publish: null
@@ -46,7 +46,7 @@ portable:
 linux:
   category: Utility
   packageCategory: utils
-  executableName: balena-etcher-electron
+  executableName: odroid-etcher-electron
   synopsis: balenaEtcher is a powerful OS image flasher built with web technologies to ensure flashing an SDCard or USB drive is a pleasant and safe experience. It protects you from accidentally writing to your hard-drives, ensures every byte of data was written correctly and much more.
   icon: assets/iconset
 deb:

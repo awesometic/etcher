@@ -1,5 +1,5 @@
 {
-  "name": "balena-etcher",
+  "name": "odroid-etcher",
   "version": "1.5.109",
   "lockfileVersion": 1,
   "requires": true,

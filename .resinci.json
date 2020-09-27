@@ -14,9 +14,9 @@
       ]
     },
     "builder": {
-      "appId": "io.balena.etcher",
-      "copyright": "Copyright 2016-2020 Balena Ltd",
-      "productName": "balenaEtcher",
+      "appId": "net.awesometic.odroid-etcher",
+      "copyright": "Copyright 2020 Deokgyu Yang <secugyu@gmail.com>",
+      "productName": "odroidEtcher",
       "nodeGypRebuild": false,
       "afterPack": "./afterPack.js",
       "asar": false,

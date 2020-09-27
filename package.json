@@ -1,16 +1,16 @@
 {
-  "name": "balena-etcher",
+  "name": "odroid-etcher",
   "private": true,
-  "displayName": "balenaEtcher",
+  "displayName": "odroidEtcher",
   "version": "1.5.109",
   "packageType": "local",
   "main": "generated/etcher.js",
   "description": "Flash OS images to SD cards and USB drives, safely and easily.",
   "productDescription": "Etcher is a powerful OS image flasher built with web technologies to ensure flashing an SDCard or USB drive is a pleasant and safe experience. It protects you from accidentally writing to your hard-drives, ensures every byte of data was written correctly and much more.",
-  "homepage": "https://github.com/balena-io/etcher",
+  "homepage": "https://github.com/awesometic/etcher",
   "repository": {
     "type": "git",
-    "url": "git@github.com:balena-io/etcher.git"
+    "url": "git@github.com:awesometic/etcher.git"
   },
   "scripts": {
     "lint-ts": "balena-lint --fix --typescript typings lib tests scripts/clean-shrinkwrap.ts webpack.config.ts",
@@ -43,7 +43,7 @@
       "npm run lint-css"
     ]
   },
-  "author": "Balena Inc. <hello@etcher.io>",
+  "author": "Deokgyu Yang <secugyu@gmail.com>",
   "license": "Apache-2.0",
   "platformSpecificDependencies": [
     "fsevents",
