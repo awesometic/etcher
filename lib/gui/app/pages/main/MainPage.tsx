@@ -47,7 +47,7 @@ import {
 } from '../../components/target-selector/target-selector';
 import { FlashStep } from './Flash';
 
-import EtcherSvg from '../../../assets/etcher.svg';
+import EtcherSvg from '../../../assets/hardkernel_logo_horizontal_transparent.svg';
 
 const Icon = styled(BaseIcon)`
 	margin-right: 20px;
@@ -190,9 +190,7 @@ export class MainPage extends React.Component<
 							style={{
 								cursor: 'pointer',
 							}}
-							onClick={() =>
-								openExternal('https://www.balena.io/etcher?ref=etcher_footer')
-							}
+							onClick={() => openExternal('https://www.hardkernel.com')}
 							tabIndex={100}
 						/>
 					</Flex>

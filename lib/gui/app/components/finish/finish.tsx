@@ -27,9 +27,9 @@ import { open as openExternal } from '../../os/open-external/services/open-exter
 import { FlashAnother } from '../flash-another/flash-another';
 import { FlashResults } from '../flash-results/flash-results';
 
-import EtcherSvg from '../../../assets/etcher.svg';
+import EtcherSvg from '../../../assets/hardkernel_logo_horizontal_transparent.svg';
 import LoveSvg from '../../../assets/love.svg';
-import BalenaSvg from '../../../assets/balena.svg';
+import BalenaSvg from '../../../assets/hardkernel_logo_horizontal_transparent.svg';
 
 function restart(goToMain: () => void) {
 	selectionState.deselectAllDrives();
