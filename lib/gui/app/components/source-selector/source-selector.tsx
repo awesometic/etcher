@@ -65,7 +65,8 @@ import { DriveSelector } from '../drive-selector/drive-selector';
 import { DrivelistDrive } from '../../../../shared/drive-constraints';
 
 import { OdroidImageInfo, odroidImageFetch } from '../odroid/fetch';
-import { MirrorServers, ImageNests } from '../odroid/addresses';
+import * as addressesJson from '../odroid/addresses.json';
+
 // TODO move these styles to rendition
 const ModalText = styled.p`
 	a {
@@ -155,22 +156,29 @@ const OdroidImageSelector = ({
 
 	const selectedByUser = {
 		board: '',
-		os: '',
-		mirrorServer: '',
+		distributor: '',
+		image: '',
 	};
 
 	const ShowContents = (props: {
 		setModalState: (nextState: ImageSelectModalState) => void;
 	}) => {
 		let contents = null;
+		const addressesJsonObject = JSON.parse(JSON.stringify(addressesJson));
+
 		switch (currentActiveStepIndex()) {
 			case 0: {
-				const boardNames = Array.from(ImageNests.keys());
 				const toBoardTableData = (boardName: string) => {
 					return {
 						board_name: boardName,
 					};
 				};
+				const boardNameEntries = Object.entries(addressesJsonObject['Board']);
+				const boardNames = Array();
+
+				boardNameEntries.forEach((element) => {
+					boardNames.push(element[1]);
+				});
 
 				contents = (
 					<>
@@ -194,25 +202,30 @@ const OdroidImageSelector = ({
 				break;
 			}
 			case 1: {
-				const OsByBoard = ImageNests.get(selectedByUser['board']) as Map<
-					string,
-					string
-				>;
-				const OsNames = Array.from(OsByBoard.keys());
-				const toOsTableData = (osName: string) => {
+				const toDistributorTableData = (distributorName: string) => {
 					return {
-						os_name: osName,
+						distributor_name: distributorName,
 					};
 				};
+				const DistributorNameEntries = Object.entries(
+					addressesJsonObject['Distributor'],
+				);
+				const distributorNames = Array();
+
+				DistributorNameEntries.forEach((element) => {
+					distributorNames.push(element[0]);
+				});
 
 				contents = (
 					<OdroidImagesTable
-						columns={odroidOsTableColumns}
-						data={OsNames.map((osName) => toOsTableData(osName))}
-						rowKey="os_name"
+						columns={odroidDistributorTableColumns}
+						data={distributorNames.map((distributorName) =>
+							toDistributorTableData(distributorName),
+						)}
+						rowKey="distributor_name"
 						onRowClick={(row: any) => {
-							console.log('Clicked: ' + row['os_name']);
-							selectedByUser['os'] = row['os_name'];
+							console.log('Clicked: ' + row['distributor_name']);
+							selectedByUser['distributor'] = row['distributor_name'];
 							props.setModalState({
 								board: true,
 								os: true,
@@ -225,23 +238,37 @@ const OdroidImageSelector = ({
 				break;
 			}
 			case 2: {
-				const mirrorNames = Array.from(MirrorServers.keys());
-				const toMirrorServerTableData = (mirrorName: string) => {
+				const toImageTableData = (imageName: string) => {
 					return {
-						mirror_server_name: mirrorName,
+						image_name: imageName,
 					};
 				};
 
+				const addrJsonWithSelectedDist =
+					addressesJsonObject['Distributor'][selectedByUser['distributor']];
+
+				if (!(selectedByUser['board'] in addrJsonWithSelectedDist)) {
+					contents = <p>N/A</p>;
+					break;
+				}
+
+				const ImageNameEntries = Object.entries(
+					addrJsonWithSelectedDist[selectedByUser['board']],
+				);
+				const imageNames = Array();
+
+				ImageNameEntries.forEach((element) => {
+					imageNames.push(element[0]);
+				});
+
 				contents = (
 					<OdroidImagesTable
-						columns={odroidMirrorServersTableColumns}
-						data={mirrorNames.map((mirrorName) =>
-							toMirrorServerTableData(mirrorName),
-						)}
-						rowKey="mirror_server_name"
+						columns={odroidImageTableColumns}
+						data={imageNames.map((imageName) => toImageTableData(imageName))}
+						rowKey="image_name"
 						onRowClick={(row: any) => {
-							console.log('Clicked: ' + row['mirror_server_name']);
-							selectedByUser['mirrorServer'] = row['mirror_server_name'];
+							console.log('Clicked: ' + row['image_name']);
+							selectedByUser['image'] = row['image_name'];
 							props.setModalState({
 								board: true,
 								os: true,
@@ -254,11 +281,15 @@ const OdroidImageSelector = ({
 				break;
 			}
 			case 3: {
-				const OsByBoard = ImageNests.get(selectedByUser['board']);
-				let targetUrl = MirrorServers.get(
-					selectedByUser['mirrorServer'],
-				) as string;
-				targetUrl += OsByBoard?.get(selectedByUser['os']) as string;
+				const addrJsonWithSelectedDist =
+					addressesJsonObject['Distributor'][selectedByUser['distributor']];
+
+				let targetUrl = '';
+				targetUrl += addrJsonWithSelectedDist['baseUrl'];
+				targetUrl +=
+					addrJsonWithSelectedDist[selectedByUser['board']][
+						selectedByUser['image']
+					];
 
 				contents = (
 					<Async promiseFn={async () => odroidImageFetch(targetUrl)}>
@@ -282,7 +313,7 @@ const OdroidImageSelector = ({
 							if (data) {
 								return (
 									<OdroidImagesTable
-										columns={odroidImagesTableColumns}
+										columns={odroidFilesTableColumns}
 										data={(data as OdroidImageInfo[]).map((imageInfo) =>
 											imageInfo.toTableData(),
 										)}
@@ -307,7 +338,7 @@ const OdroidImageSelector = ({
 		return contents;
 	};
 
-	const StepLabels = ['Board', 'OS', 'Mirror Server', 'Image'];
+	const StepLabels = ['Board', 'Distributor', 'OS Image', 'Files'];
 
 	const GetStep = (index: number) => {
 		return (
@@ -343,10 +374,10 @@ const OdroidImageSelector = ({
 		},
 	];
 
-	const odroidOsTableColumns: any = [
+	const odroidDistributorTableColumns: any = [
 		{
-			field: 'os_name',
-			label: 'OS Name',
+			field: 'distributor_name',
+			label: 'Distributor Name',
 			render: (value: string) => <code>{value}</code>,
 		},
 		{
@@ -356,10 +387,10 @@ const OdroidImageSelector = ({
 		},
 	];
 
-	const odroidMirrorServersTableColumns: any = [
+	const odroidImageTableColumns: any = [
 		{
-			field: 'mirror_server_name',
-			label: 'Mirror Server Name',
+			field: 'image_name',
+			label: 'OS Image Name',
 			render: (value: string) => <code>{value}</code>,
 		},
 		{
@@ -369,7 +400,7 @@ const OdroidImageSelector = ({
 		},
 	];
 
-	const odroidImagesTableColumns: any = [
+	const odroidFilesTableColumns: any = [
 		{
 			field: 'file_name',
 			label: 'Name',
