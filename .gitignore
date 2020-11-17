@@ -51,3 +51,6 @@ node_modules
 # VSCode files
 
 .vscode
+
+# pyenv
+.python-version
