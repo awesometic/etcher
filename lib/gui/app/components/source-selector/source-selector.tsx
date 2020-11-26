@@ -61,6 +61,7 @@ import { SVGIcon } from '../svg-icon/svg-icon';
 // import { createFullTextSearchFilter } from 'rendition/dist/components/Filters/SchemaSieve';
 
 import ImageSvg from '../../../assets/image.svg';
+import SrcSvg from '../../../assets/src.svg';
 import { DriveSelector } from '../drive-selector/drive-selector';
 import { DrivelistDrive } from '../../../../shared/drive-constraints';
 
@@ -688,6 +689,7 @@ interface SourceSelectorState {
 	showOdroidImageSelector: boolean;
 	showDriveSelector: boolean;
 	defaultFlowActive: boolean;
+	imageSelectorOpen: boolean;
 }
 
 export class SourceSelector extends React.Component<
@@ -705,6 +707,7 @@ export class SourceSelector extends React.Component<
 			showOdroidImageSelector: false,
 			showDriveSelector: false,
 			defaultFlowActive: true,
+			imageSelectorOpen: false,
 		};
 
 		// Bind `this` since it's used in an event's callback
@@ -827,6 +830,15 @@ export class SourceSelector extends React.Component<
 						}
 					}
 				} else {
+					if (selected.partitionTableType === null) {
+						analytics.logEvent('Missing partition table', { selected });
+						this.setState({
+							warning: {
+								message: messages.warning.driveMissingPartitionTable(),
+								title: 'Missing partition table',
+							},
+						});
+					}
 					metadata = {
 						path: selected.device,
 						displayName: selected.displayName,
@@ -892,6 +904,7 @@ export class SourceSelector extends React.Component<
 
 	private async openImageSelector() {
 		analytics.logEvent('Open image selector');
+		this.setState({ imageSelectorOpen: true });
 
 		try {
 			const imagePath = await osDialog.selectImage();
@@ -904,6 +917,8 @@ export class SourceSelector extends React.Component<
 			await this.selectSource(imagePath, sourceDestination.File).promise;
 		} catch (error) {
 			exceptionReporter.report(error);
+		} finally {
+			this.setState({ imageSelectorOpen: false });
 		}
 	}
 
@@ -1024,6 +1039,7 @@ export class SourceSelector extends React.Component<
 					) : (
 						<>
 							<FlowSelector
+								disabled={this.state.imageSelectorOpen}
 								primary={this.state.defaultFlowActive}
 								key="Flash from file"
 								flow={{
@@ -1130,9 +1146,11 @@ export class SourceSelector extends React.Component<
 
 				{showDriveSelector && (
 					<DriveSelector
+						write={false}
 						multipleSelection={false}
 						titleLabel="Select source"
-						emptyListLabel="Plug a source"
+						emptyListLabel="Plug a source drive"
+						emptyListIcon={<SrcSvg width="40px" />}
 						cancel={() => {
 							this.setState({
 								showDriveSelector: false,
