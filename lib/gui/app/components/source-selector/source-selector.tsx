@@ -64,8 +64,11 @@ import ImageSvg from '../../../assets/image.svg';
 import { DriveSelector } from '../drive-selector/drive-selector';
 import { DrivelistDrive } from '../../../../shared/drive-constraints';
 
-import { OdroidImageInfo, odroidImageFetch } from '../odroid/fetch';
-import * as addressesJson from '../odroid/addresses.json';
+import {
+	OdroidImageInfo,
+	odroidImageFetch,
+	getImagesManifest,
+} from '../odroid/fetch';
 
 // TODO move these styles to rendition
 const ModalText = styled.p`
@@ -147,6 +150,10 @@ const OdroidImageSelector = ({
 		return index;
 	};
 
+	interface ImageSelectModalProps {
+		addressesJsonObject: any;
+	}
+
 	interface ImageSelectModalState {
 		board: boolean;
 		os: boolean;
@@ -161,10 +168,10 @@ const OdroidImageSelector = ({
 	};
 
 	const ShowContents = (props: {
+		addressesJsonObject: any;
 		setModalState: (nextState: ImageSelectModalState) => void;
 	}) => {
 		let contents = null;
-		const addressesJsonObject = JSON.parse(JSON.stringify(addressesJson));
 
 		switch (currentActiveStepIndex()) {
 			case 0: {
@@ -173,31 +180,31 @@ const OdroidImageSelector = ({
 						board_name: boardName,
 					};
 				};
-				const boardNameEntries = Object.entries(addressesJsonObject['Board']);
 				const boardNames = Array();
+				const boardNameEntries = Object.entries(
+					props.addressesJsonObject['Board'],
+				);
 
 				boardNameEntries.forEach((element) => {
 					boardNames.push(element[1]);
 				});
 
 				contents = (
-					<>
-						<OdroidImagesTable
-							columns={odroidBoardsTableColumns}
-							data={boardNames.map((boardName) => toBoardTableData(boardName))}
-							rowKey="board_name"
-							onRowClick={(row: any) => {
-								console.log('Clicked: ' + row['board_name']);
-								selectedByUser['board'] = row['board_name'];
-								props.setModalState({
-									board: true,
-									os: true,
-									mirrorServer: false,
-									image: false,
-								});
-							}}
-						/>
-					</>
+					<OdroidImagesTable
+						columns={odroidBoardsTableColumns}
+						data={boardNames.map((boardName) => toBoardTableData(boardName))}
+						rowKey="board_name"
+						onRowClick={(row: any) => {
+							console.log('Clicked: ' + row['board_name']);
+							selectedByUser['board'] = row['board_name'];
+							props.setModalState({
+								board: true,
+								os: true,
+								mirrorServer: false,
+								image: false,
+							});
+						}}
+					/>
 				);
 				break;
 			}
@@ -208,7 +215,7 @@ const OdroidImageSelector = ({
 					};
 				};
 				const DistributorNameEntries = Object.entries(
-					addressesJsonObject['Distributor'],
+					props.addressesJsonObject['Distributor'],
 				);
 				const distributorNames = Array();
 
@@ -245,11 +252,12 @@ const OdroidImageSelector = ({
 				};
 
 				const addrJsonWithSelectedDist =
-					addressesJsonObject['Distributor'][selectedByUser['distributor']];
+					props.addressesJsonObject['Distributor'][
+						selectedByUser['distributor']
+					];
 
 				if (!(selectedByUser['board'] in addrJsonWithSelectedDist)) {
-					contents = <p>N/A</p>;
-					break;
+					return <p>N/A</p>;
 				}
 
 				const ImageNameEntries = Object.entries(
@@ -282,7 +290,9 @@ const OdroidImageSelector = ({
 			}
 			case 3: {
 				const addrJsonWithSelectedDist =
-					addressesJsonObject['Distributor'][selectedByUser['distributor']];
+					props.addressesJsonObject['Distributor'][
+						selectedByUser['distributor']
+					];
 
 				let targetUrl = '';
 				targetUrl += addrJsonWithSelectedDist['baseUrl'];
@@ -306,6 +316,7 @@ const OdroidImageSelector = ({
 									</Flex>
 								);
 							}
+
 							if (error) {
 								return { error };
 							}
@@ -418,8 +429,11 @@ const OdroidImageSelector = ({
 		},
 	];
 
-	class ImageSelectModal extends React.Component<{}, ImageSelectModalState> {
-		constructor(props: {}) {
+	class ImageSelectModal extends React.Component<
+		ImageSelectModalProps,
+		ImageSelectModalState
+	> {
+		constructor(props: ImageSelectModalProps) {
 			super(props);
 
 			this.state = {
@@ -498,7 +512,10 @@ const OdroidImageSelector = ({
 								width="100%"
 								height="80%"
 							>
-								<ShowContents setModalState={this.update} />
+								<ShowContents
+									addressesJsonObject={this.props.addressesJsonObject}
+									setModalState={this.update}
+								/>
 							</ScrollableFlex>
 						</>
 					);
@@ -559,7 +576,42 @@ const OdroidImageSelector = ({
 			}}
 		>
 			<Flex flexDirection="column" width="100%" height="90%">
-				<ImageSelectModal />
+				<Async promiseFn={async () => getImagesManifest()}>
+					{({ data, error, isLoading }) => {
+						if (isLoading) {
+							return (
+								<Flex
+									flexDirection="column"
+									justifyContent="center"
+									alignItems="center"
+									height="100%"
+								>
+									<Txt.p bold>Loading...</Txt.p>
+								</Flex>
+							);
+						}
+
+						if (error) {
+							return (
+								<Flex
+									flexDirection="column"
+									justifyContent="center"
+									alignItems="center"
+									height="100%"
+								>
+									<Txt.p bold>
+										Failed to fetch the image list. Please wait for a moment
+										until the server is recovered.
+									</Txt.p>
+								</Flex>
+							);
+						}
+
+						if (data) {
+							return <ImageSelectModal addressesJsonObject={data} />;
+						}
+					}}
+				</Async>
 			</Flex>
 		</Modal>
 	);

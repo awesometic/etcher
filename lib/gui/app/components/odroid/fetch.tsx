@@ -96,6 +96,7 @@ export async function odroidImageFetch(url: string) {
 
 		const $ = load(results.data);
 
+		// Parsing Apache directory listing page
 		$('body table tbody tr').each((_, element) => {
 			const tdList = $(element).find('td');
 
@@ -117,5 +118,19 @@ export async function odroidImageFetch(url: string) {
 		});
 
 		resolve(images);
+	});
+}
+
+export async function getImagesManifest() {
+	return new Promise(async (resolve, reject) => {
+		const ManifestUrl = 'https://api.awesometic.net/odroid-etcher';
+		const Results = await axios.get(ManifestUrl);
+
+		if (Results.status !== 200) {
+			reject('Failed to load' + ManifestUrl);
+		}
+
+		console.log(Results.data as string);
+		resolve(Results.data as string);
 	});
 }
