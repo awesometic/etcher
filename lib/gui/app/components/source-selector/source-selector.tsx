@@ -65,11 +65,8 @@ import SrcSvg from '../../../assets/src.svg';
 import { DriveSelector } from '../drive-selector/drive-selector';
 import { DrivelistDrive } from '../../../../shared/drive-constraints';
 
-import {
-	OdroidImageInfo,
-	odroidImageFetch,
-	getImagesManifest,
-} from '../odroid/fetch';
+import { odroidImageFetch, getImagesManifest } from '../odroid/fetch';
+import { OdroidImageInfo } from '../odroid/odroid-image';
 
 // TODO move these styles to rendition
 const ModalText = styled.p`
@@ -302,9 +299,12 @@ const OdroidImageSelector = ({
 					addrJsonWithSelectedDist[selectedByUser['board']][
 						selectedByUser['image']
 					];
+				const archiveType = addrJsonWithSelectedDist['archiveType'];
 
 				contents = (
-					<Async promiseFn={async () => odroidImageFetch(targetUrl)}>
+					<Async
+						promiseFn={async () => odroidImageFetch(targetUrl, archiveType)}
+					>
 						{({ data, error, isLoading }) => {
 							if (isLoading) {
 								return (
