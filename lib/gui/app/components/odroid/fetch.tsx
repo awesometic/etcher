@@ -34,6 +34,9 @@ export async function odroidImageFetch(url: string, archiveType: string) {
 			case 'h5ai':
 				resolve(webParsing.fromH5aiDirectoryListing(load(results.data), url));
 				break;
+			case 'github':
+				resolve(webParsing.fromGithubReleases(load(results.data), url));
+				break;
 		}
 	});
 }

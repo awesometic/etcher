@@ -69,6 +69,39 @@ export function fromH5aiDirectoryListing($: any, url: string) {
 	return images;
 }
 
+export function fromGithubReleases($: any, url: string) {
+	const images: OdroidImageInfo[] = [];
+
+	$('body main details div div .flex-items-center').each(
+		(_: any, element: any) => {
+			const fileLink = $(element).find('a')?.attr('href') as string;
+			const fileSize = $(element).find('small').text().trim();
+
+			if (fileLink === undefined) {
+				return;
+			}
+
+			const fileLinkSplitted = fileLink.split('/');
+			const fileName = fileLinkSplitted[fileLinkSplitted.length - 1];
+			if (hasExcludeExtensions(fileName)) {
+				return;
+			}
+
+			const urlSplitted = url.split('/');
+			images.push(
+				new OdroidImageInfo({
+					fileName,
+					fileSize,
+					lastModified: 'N/A',
+					downloadUrl: urlSplitted[0] + '//' + urlSplitted[2] + fileLink,
+				}),
+			);
+		},
+	);
+
+	return images;
+}
+
 function hasExcludeExtensions(name: string) {
 	if (
 		name.toLowerCase().indexOf('.img') === -1 ||
