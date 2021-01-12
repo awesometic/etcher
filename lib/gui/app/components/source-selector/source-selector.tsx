@@ -33,7 +33,6 @@ import {
 	Txt,
 	Step,
 	Steps,
-	Table,
 	Spinner,
 } from 'rendition';
 import styled from 'styled-components';
@@ -51,7 +50,7 @@ import {
 	ChangeButton,
 	DetailsText,
 	Modal,
-	ScrollableFlex,
+	Table,
 	StepButton,
 	StepNameButton,
 } from '../../styled-components';
@@ -67,6 +66,7 @@ import { DrivelistDrive } from '../../../../shared/drive-constraints';
 
 import { odroidImageFetch, getImagesManifest } from '../odroid/fetch';
 import { OdroidImageInfo } from '../odroid/odroid-image';
+import { OdroidImageStepInfo } from '../odroid/odroid-image-step';
 
 // TODO move these styles to rendition
 const ModalText = styled.p`
@@ -105,34 +105,31 @@ const OdroidImageSelector = ({
 	const [imageURL, setImageURL] = React.useState('');
 	const [loading, setLoading] = React.useState(false);
 
-	const OdroidImagesTable = styled(({ refFn, ...props }) => {
-		return (
-			<div>
-				<Table<OdroidImageInfo> ref={refFn} {...props} />
-			</div>
-		);
+	const OdroidImageStepTable = styled(({ refFn, ...props }) => {
+		return <Table<OdroidImageStepInfo> ref={refFn} {...props} />;
 	})`
-		[data-display='table-head']
-			> [data-display='table-row']
-			> [data-display='table-cell'] {
-			position: sticky;
-			top: 0;
-			background-color: ${(props) => props.theme.colors.quartenary.light};
-			font-color: grey;
-		}
+		border-bottom: none;
+		table-layout: fixed;
+	`;
 
-		[data-display='table-cell']:first-child {
-			padding-left: 15px;
-			width: 460px;
-		}
+	const OdroidImagesTable = styled(({ refFn, ...props }) => {
+		return <Table<OdroidImageInfo> ref={refFn} {...props} />;
+	})`
+		border-bottom: none;
+		table-layout: fixed;
 
-		[data-display='table-cell']:last-child {
-			width: 150px;
-		}
+		[data-display='table-head'],
+		[data-display='table-body'] {
+			> [data-display='table-row'] > [data-display='table-cell'] {
+				&:nth-child(1) {
+					width: 74% !important;
+					overflow: auto;
+				}
 
-		&& [data-display='table-row'] > [data-display='table-cell'] {
-			padding: 6px 8px;
-			color: #2a506f;
+				&:nth-child(2) {
+					width: 8%;
+				}
+			}
 		}
 	`;
 
@@ -189,7 +186,7 @@ const OdroidImageSelector = ({
 				});
 
 				contents = (
-					<OdroidImagesTable
+					<OdroidImageStepTable
 						columns={odroidBoardsTableColumns}
 						data={boardNames.map((boardName) => toBoardTableData(boardName))}
 						rowKey="board_name"
@@ -223,7 +220,7 @@ const OdroidImageSelector = ({
 				});
 
 				contents = (
-					<OdroidImagesTable
+					<OdroidImageStepTable
 						columns={odroidDistributorTableColumns}
 						data={distributorNames.map((distributorName) =>
 							toDistributorTableData(distributorName),
@@ -269,7 +266,7 @@ const OdroidImageSelector = ({
 				});
 
 				contents = (
-					<OdroidImagesTable
+					<OdroidImageStepTable
 						columns={odroidImageTableColumns}
 						data={imageNames.map((imageName) => toImageTableData(imageName))}
 						rowKey="image_name"
@@ -366,7 +363,7 @@ const OdroidImageSelector = ({
 			<Steps
 				ordered
 				activeStepIndex={currentActiveStepIndex()}
-				m={1}
+				pb={2}
 				{...props}
 			>
 				{StepLabels.map((_null, index) => GetStep(index))}
@@ -380,11 +377,6 @@ const OdroidImageSelector = ({
 			label: 'Board Name',
 			render: (value: string) => <code>{value}</code>,
 		},
-		{
-			field: '',
-			label: '',
-			render: '',
-		},
 	];
 
 	const odroidDistributorTableColumns: any = [
@@ -393,11 +385,6 @@ const OdroidImageSelector = ({
 			label: 'Distributor Name',
 			render: (value: string) => <code>{value}</code>,
 		},
-		{
-			field: '',
-			label: '',
-			render: '',
-		},
 	];
 
 	const odroidImageTableColumns: any = [
@@ -405,11 +392,6 @@ const OdroidImageSelector = ({
 			field: 'image_name',
 			label: 'OS Image Name',
 			render: (value: string) => <code>{value}</code>,
-		},
-		{
-			field: '',
-			label: '',
-			render: '',
 		},
 	];
 
@@ -493,32 +475,26 @@ const OdroidImageSelector = ({
 				if (!imageURL) {
 					contents = (
 						<>
-							<div
-								style={{
-									overflow: 'hidden',
-								}}
+							<Flex
+								flexDirection="column"
+								justifyContent="flex-end"
+								alignItems="center"
+								width="100%"
+								height="15%"
 							>
-								<Flex
-									flexDirection="column"
-									justifyContent="flex-end"
-									alignItems="center"
-									width="100%"
-									height="50px"
-								>
-									<OrderedSteps bordered={false} />
-								</Flex>
-							</div>
-							<ScrollableFlex
+								<OrderedSteps bordered={false} />
+							</Flex>
+							<Flex
 								flexDirection="column"
 								alignItems="center"
 								width="100%"
-								height="80%"
+								height="85%"
 							>
 								<ShowContents
 									addressesJsonObject={this.props.addressesJsonObject}
 									setModalState={this.update}
 								/>
-							</ScrollableFlex>
+							</Flex>
 						</>
 					);
 				} else {
@@ -577,7 +553,7 @@ const OdroidImageSelector = ({
 				await done(imageURL);
 			}}
 		>
-			<Flex flexDirection="column" width="100%" height="90%">
+			<Flex flexDirection="column" width="100%" height="100%">
 				<Async promiseFn={async () => getImagesManifest()}>
 					{({ data, error, isLoading }) => {
 						if (isLoading) {
