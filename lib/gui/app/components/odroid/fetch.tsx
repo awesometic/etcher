@@ -17,7 +17,7 @@
 import axios from 'axios';
 import { load } from 'cheerio';
 
-import * as webParsing from './website-parse';
+import * as webParser from './webpage-parser';
 
 export async function odroidImageFetch(
 	url: string,
@@ -34,7 +34,7 @@ export async function odroidImageFetch(
 		switch (archiveType) {
 			case 'apache':
 				resolve(
-					webParsing.fromAracheDirectoryListing(
+					webParser.fromAracheDirectoryListing(
 						load(results.data),
 						url,
 						nameFilters,
@@ -43,7 +43,7 @@ export async function odroidImageFetch(
 				break;
 			case 'h5ai':
 				resolve(
-					webParsing.fromH5aiDirectoryListing(
+					webParser.fromH5aiDirectoryListing(
 						load(results.data),
 						url,
 						nameFilters,
@@ -52,7 +52,7 @@ export async function odroidImageFetch(
 				break;
 			case 'github':
 				resolve(
-					webParsing.fromGithubReleases(load(results.data), url, nameFilters),
+					webParser.fromGithubReleases(load(results.data), url, nameFilters),
 				);
 				break;
 		}
