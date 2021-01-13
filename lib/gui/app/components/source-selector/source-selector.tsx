@@ -323,7 +323,7 @@ const OdroidImageSelector = ({
 										alignItems="center"
 										height="100%"
 									>
-										<Txt.p bold>Loading...</Txt.p>
+										<Spinner label="Loading..." emphasized />
 									</Flex>
 								);
 							}
@@ -576,7 +576,7 @@ const OdroidImageSelector = ({
 									alignItems="center"
 									height="100%"
 								>
-									<Txt.p bold>Loading...</Txt.p>
+									<Spinner label="Loading..." emphasized />
 								</Flex>
 							);
 						}
