@@ -16,7 +16,11 @@
 
 import { OdroidImageInfo } from './odroid-image';
 
-export function fromAracheDirectoryListing($: any, url: string) {
+export function fromAracheDirectoryListing(
+	$: any,
+	url: string,
+	nameFilters: string[],
+) {
 	const images: OdroidImageInfo[] = [];
 
 	$('body table tbody tr').each((_: any, element: any) => {
@@ -25,7 +29,10 @@ export function fromAracheDirectoryListing($: any, url: string) {
 		const fileName = $(tdList[1]).text().trim();
 		const fileSize = $(tdList[3]).text().trim();
 
-		if (hasExcludeExtensions(fileName)) {
+		if (
+			hasExcludeExtensions(fileName) ||
+			isFilteredByNameFilters(fileName, nameFilters)
+		) {
 			return;
 		}
 		if (!fileSize.includes('M') && !fileSize.includes('G')) {
@@ -45,14 +52,21 @@ export function fromAracheDirectoryListing($: any, url: string) {
 	return images;
 }
 
-export function fromH5aiDirectoryListing($: any, url: string) {
+export function fromH5aiDirectoryListing(
+	$: any,
+	url: string,
+	nameFilters: string[],
+) {
 	const images: OdroidImageInfo[] = [];
 
 	$('body table tbody tr').each((_: any, element: any) => {
 		const tdList = $(element).find('td');
 
 		const fileName = $(tdList[1]).text().trim();
-		if (hasExcludeExtensions(fileName)) {
+		if (
+			hasExcludeExtensions(fileName) ||
+			isFilteredByNameFilters(fileName, nameFilters)
+		) {
 			return;
 		}
 
@@ -69,7 +83,7 @@ export function fromH5aiDirectoryListing($: any, url: string) {
 	return images;
 }
 
-export function fromGithubReleases($: any, url: string) {
+export function fromGithubReleases($: any, url: string, nameFilters: string[]) {
 	const images: OdroidImageInfo[] = [];
 
 	$('body main details div div .flex-items-center').each(
@@ -83,7 +97,10 @@ export function fromGithubReleases($: any, url: string) {
 
 			const fileLinkSplitted = fileLink.split('/');
 			const fileName = fileLinkSplitted[fileLinkSplitted.length - 1];
-			if (hasExcludeExtensions(fileName)) {
+			if (
+				hasExcludeExtensions(fileName) ||
+				isFilteredByNameFilters(fileName, nameFilters)
+			) {
 				return;
 			}
 
@@ -100,6 +117,19 @@ export function fromGithubReleases($: any, url: string) {
 	);
 
 	return images;
+}
+
+function isFilteredByNameFilters(fileName: string, nameFilters: string[]) {
+	let isFiltered = false;
+
+	nameFilters.forEach((filter) => {
+		if ((fileName as string).toLocaleLowerCase().indexOf(filter) === -1) {
+			isFiltered = true;
+			return;
+		}
+	});
+
+	return isFiltered;
 }
 
 function hasExcludeExtensions(name: string) {

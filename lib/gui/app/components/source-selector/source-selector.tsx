@@ -290,17 +290,29 @@ const OdroidImageSelector = ({
 						selectedByUser['distributor']
 					];
 
-				let targetUrl = '';
-				targetUrl += addrJsonWithSelectedDist['baseUrl'];
-				targetUrl +=
+				const selectedImageEntry =
 					addrJsonWithSelectedDist[selectedByUser['board']][
 						selectedByUser['image']
 					];
+
+				let nameFilters: string[] = [];
+				let targetUrl = '';
+				targetUrl += addrJsonWithSelectedDist['baseUrl'];
+
+				if (typeof selectedImageEntry !== 'string') {
+					targetUrl += selectedImageEntry['url'];
+					nameFilters = selectedImageEntry['nameFilters'].split(',');
+				} else {
+					targetUrl += selectedImageEntry;
+				}
+
 				const archiveType = addrJsonWithSelectedDist['archiveType'];
 
 				contents = (
 					<Async
-						promiseFn={async () => odroidImageFetch(targetUrl, archiveType)}
+						promiseFn={async () =>
+							odroidImageFetch(targetUrl, archiveType, nameFilters)
+						}
 					>
 						{({ data, error, isLoading }) => {
 							if (isLoading) {

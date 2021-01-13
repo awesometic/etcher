@@ -19,7 +19,11 @@ import { load } from 'cheerio';
 
 import * as webParsing from './website-parse';
 
-export async function odroidImageFetch(url: string, archiveType: string) {
+export async function odroidImageFetch(
+	url: string,
+	archiveType: string,
+	nameFilters: string[],
+) {
 	return new Promise(async (resolve, reject) => {
 		const results = await axios.get(url);
 
@@ -29,13 +33,27 @@ export async function odroidImageFetch(url: string, archiveType: string) {
 
 		switch (archiveType) {
 			case 'apache':
-				resolve(webParsing.fromAracheDirectoryListing(load(results.data), url));
+				resolve(
+					webParsing.fromAracheDirectoryListing(
+						load(results.data),
+						url,
+						nameFilters,
+					),
+				);
 				break;
 			case 'h5ai':
-				resolve(webParsing.fromH5aiDirectoryListing(load(results.data), url));
+				resolve(
+					webParsing.fromH5aiDirectoryListing(
+						load(results.data),
+						url,
+						nameFilters,
+					),
+				);
 				break;
 			case 'github':
-				resolve(webParsing.fromGithubReleases(load(results.data), url));
+				resolve(
+					webParsing.fromGithubReleases(load(results.data), url, nameFilters),
+				);
 				break;
 		}
 	});
