@@ -73,7 +73,7 @@ export function fromH5aiDirectoryListing(
 		images.push(
 			new OdroidImageInfo({
 				fileName,
-				fileSize: 'N/A',
+				fileSize: '',
 				lastModified: $(tdList[2]).text().trim(),
 				downloadUrl: url + fileName,
 			}),
@@ -89,7 +89,9 @@ export function fromGithubReleases($: any, url: string, nameFilters: string[]) {
 	$('body main details div div .flex-items-center').each(
 		(_: any, element: any) => {
 			const fileLink = $(element).find('a')?.attr('href') as string;
-			const fileSize = $(element).find('small').text().trim();
+			let fileSize = $(element).find('small').text().trim();
+			// Remove last "B" character in size unit and whitespaces
+			fileSize = fileSize.slice(0, -1).replace(/\s/g, '');
 
 			if (fileLink === undefined) {
 				return;
@@ -109,7 +111,7 @@ export function fromGithubReleases($: any, url: string, nameFilters: string[]) {
 				new OdroidImageInfo({
 					fileName,
 					fileSize,
-					lastModified: 'N/A',
+					lastModified: '',
 					downloadUrl: urlSplitted[0] + '//' + urlSplitted[2] + fileLink,
 				}),
 			);
