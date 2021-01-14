@@ -34,6 +34,7 @@ import {
 	Step,
 	Steps,
 	Spinner,
+	List,
 } from 'rendition';
 import styled from 'styled-components';
 
@@ -519,13 +520,27 @@ const OdroidImageSelector = ({
 								height="100%"
 							>
 								<>
-									<Txt.p>
-										<Txt.span monospace bold>
-											{imageURL}
-										</Txt.span>
+									<Txt.p align="start" style={{ width: '100%' }}>
+										<Txt>Here're the selected options.</Txt>
+										<List>
+											<Txt>Board: {selectedByUser['board']}</Txt>
+											<Txt>Distributor: {selectedByUser['distributor']}</Txt>
+											<Txt>OS: {selectedByUser['image']}</Txt>
+											<Txt>
+												The file will be downloaded from this link:
+												<Txt>{imageURL}</Txt>
+											</Txt>
+										</List>
 									</Txt.p>
-									<Txt.p>
-										<Txt.span>Click OK button to download.</Txt.span>
+									<Txt.p align="center">
+										<Txt>
+											If all options are selected well, click OK button to start
+											download.
+										</Txt>
+										<Txt>
+											If not, click Cancel button to go back to the main screen
+											then follow the steps again.
+										</Txt>
 									</Txt.p>
 								</>
 							</Flex>
