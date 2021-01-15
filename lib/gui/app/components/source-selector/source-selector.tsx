@@ -68,6 +68,7 @@ import { DrivelistDrive } from '../../../../shared/drive-constraints';
 import { odroidImageFetch, getImagesManifest } from '../odroid/fetch';
 import { OdroidImageInfo } from '../odroid/odroid-image';
 import { OdroidImageStepInfo } from '../odroid/odroid-image-step';
+import { SelectedOptions } from '../odroid/selected-options';
 
 // TODO move these styles to rendition
 const ModalText = styled.p`
@@ -158,12 +159,6 @@ const OdroidImageSelector = ({
 		image: boolean;
 	}
 
-	const selectedByUser = {
-		board: '',
-		distributor: '',
-		image: '',
-	};
-
 	const ShowContents = (props: {
 		addressesJsonObject: any;
 		setModalState: (nextState: ImageSelectModalState) => void;
@@ -193,7 +188,7 @@ const OdroidImageSelector = ({
 						rowKey="board_name"
 						onRowClick={(row: any) => {
 							console.log('Clicked: ' + row['board_name']);
-							selectedByUser['board'] = row['board_name'];
+							SelectedOptions.selectedByUser.board = row['board_name'];
 							props.setModalState({
 								board: true,
 								os: true,
@@ -229,7 +224,8 @@ const OdroidImageSelector = ({
 						rowKey="distributor_name"
 						onRowClick={(row: any) => {
 							console.log('Clicked: ' + row['distributor_name']);
-							selectedByUser['distributor'] = row['distributor_name'];
+							SelectedOptions.selectedByUser.distributor =
+								row['distributor_name'];
 							props.setModalState({
 								board: true,
 								os: true,
@@ -250,15 +246,17 @@ const OdroidImageSelector = ({
 
 				const addrJsonWithSelectedDist =
 					props.addressesJsonObject['Distributor'][
-						selectedByUser['distributor']
+						SelectedOptions.selectedByUser.distributor
 					];
 
-				if (!(selectedByUser['board'] in addrJsonWithSelectedDist)) {
+				if (
+					!(SelectedOptions.selectedByUser.board in addrJsonWithSelectedDist)
+				) {
 					return <p>N/A</p>;
 				}
 
 				const ImageNameEntries = Object.entries(
-					addrJsonWithSelectedDist[selectedByUser['board']],
+					addrJsonWithSelectedDist[SelectedOptions.selectedByUser.board],
 				);
 				const imageNames = Array();
 
@@ -273,7 +271,7 @@ const OdroidImageSelector = ({
 						rowKey="image_name"
 						onRowClick={(row: any) => {
 							console.log('Clicked: ' + row['image_name']);
-							selectedByUser['image'] = row['image_name'];
+							SelectedOptions.selectedByUser.image = row['image_name'];
 							props.setModalState({
 								board: true,
 								os: true,
@@ -288,12 +286,12 @@ const OdroidImageSelector = ({
 			case 3: {
 				const addrJsonWithSelectedDist =
 					props.addressesJsonObject['Distributor'][
-						selectedByUser['distributor']
+						SelectedOptions.selectedByUser.distributor
 					];
 
 				const selectedImageEntry =
-					addrJsonWithSelectedDist[selectedByUser['board']][
-						selectedByUser['image']
+					addrJsonWithSelectedDist[SelectedOptions.selectedByUser.board][
+						SelectedOptions.selectedByUser.image
 					];
 
 				let nameFilters: string[] = [];
@@ -523,23 +521,30 @@ const OdroidImageSelector = ({
 									<Txt.p align="start" style={{ width: '100%' }}>
 										<Txt>Here're the selected options.</Txt>
 										<List>
-											<Txt>Board: {selectedByUser['board']}</Txt>
-											<Txt>Distributor: {selectedByUser['distributor']}</Txt>
-											<Txt>OS: {selectedByUser['image']}</Txt>
 											<Txt>
-												The file will be downloaded from this link:
+												<b>Board</b>: {SelectedOptions.selectedByUser.board}
+											</Txt>
+											<Txt>
+												<b>Distributor</b>:{' '}
+												{SelectedOptions.selectedByUser.distributor}
+											</Txt>
+											<Txt>
+												<b>OS</b>: {SelectedOptions.selectedByUser.image}
+											</Txt>
+											<Txt>
+												<b>The file will be downloaded from this link</b>:
 												<Txt>{imageURL}</Txt>
 											</Txt>
 										</List>
 									</Txt.p>
 									<Txt.p align="center">
 										<Txt>
-											If all options are selected well, click OK button to start
-											download.
+											If all options are selected well, click <b>OK</b> button
+											to start download.
 										</Txt>
 										<Txt>
-											If not, click Cancel button to go back to the main screen
-											then follow the steps again.
+											If not, click <b>Cancel</b> button to go back to the main
+											screen then follow the steps again.
 										</Txt>
 									</Txt.p>
 								</>
