@@ -69,6 +69,7 @@ import { odroidImageFetch, getImagesManifest } from '../odroid/fetch';
 import { OdroidImageInfo } from '../odroid/odroid-image';
 import { OdroidImageStepInfo } from '../odroid/odroid-image-step';
 import { SelectedOptions } from '../odroid/selected-options';
+import { NameFilters } from '../odroid/name-filters';
 
 // TODO move these styles to rendition
 const ModalText = styled.p`
@@ -294,13 +295,15 @@ const OdroidImageSelector = ({
 						SelectedOptions.selectedByUser.image
 					];
 
-				let nameFilters: string[] = [];
 				let targetUrl = '';
 				targetUrl += addrJsonWithSelectedDist['baseUrl'];
+				NameFilters.reset();
 
 				if (typeof selectedImageEntry !== 'string') {
 					targetUrl += selectedImageEntry['url'];
-					nameFilters = selectedImageEntry['nameFilters'].split(',');
+					NameFilters.nameFilters.hasToContain = selectedImageEntry[
+						'nameFilters'
+					].split(',');
 				} else {
 					targetUrl += selectedImageEntry;
 				}
@@ -309,9 +312,7 @@ const OdroidImageSelector = ({
 
 				contents = (
 					<Async
-						promiseFn={async () =>
-							odroidImageFetch(targetUrl, archiveType, nameFilters)
-						}
+						promiseFn={async () => odroidImageFetch(targetUrl, archiveType)}
 					>
 						{({ data, error, isLoading }) => {
 							if (isLoading) {
