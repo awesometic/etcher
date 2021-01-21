@@ -68,7 +68,7 @@
     "@types/tmp": "^0.2.0",
     "@types/webpack-node-externals": "^2.5.0",
     "chai": "^4.2.0",
-    "cheerio": "^1.0.0-rc.3",
+    "cheerio": "^1.0.0-rc.5",
     "copy-webpack-plugin": "^7.0.0",
     "css-loader": "^5.0.1",
     "d3": "^4.13.0",
