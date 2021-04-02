@@ -23,8 +23,19 @@ export function fromAracheDirectoryListing($: any, url: string) {
 	$('body table tbody tr').each((_: any, element: any) => {
 		const tdList = $(element).find('td');
 
-		const fileName = $(tdList[1]).text().trim();
-		const fileSize = $(tdList[3]).text().trim();
+		let fileName = $(tdList[1]).text().trim();
+		let fileModifiedDate = $(tdList[2]).text().trim();
+		let fileSize = $(tdList[3]).text().trim();
+
+		if (isParsedStringsEmpty(fileName, fileModifiedDate, fileSize)) {
+			fileName = $(tdList[0]).text().trim();
+			fileModifiedDate = $(tdList[1]).text().trim();
+			fileSize = $(tdList[2]).text().trim();
+		}
+
+		if (isParsedStringsEmpty(fileName, fileModifiedDate, fileSize)) {
+			return;
+		}
 
 		if (hasExcludeExtensions(fileName) || isFilteredByNameFilters(fileName)) {
 			return;
@@ -37,7 +48,7 @@ export function fromAracheDirectoryListing($: any, url: string) {
 			new OdroidImageInfo({
 				fileName,
 				fileSize,
-				lastModified: $(tdList[2]).text().trim(),
+				lastModified: fileModifiedDate,
 				downloadUrl: url + fileName,
 			}),
 		);
@@ -53,6 +64,11 @@ export function fromH5aiDirectoryListing($: any, url: string) {
 		const tdList = $(element).find('td');
 
 		const fileName = $(tdList[1]).text().trim();
+
+		if (isParsedStringsEmpty(fileName)) {
+			return;
+		}
+
 		if (hasExcludeExtensions(fileName) || isFilteredByNameFilters(fileName)) {
 			return;
 		}
@@ -86,6 +102,11 @@ export function fromGithubReleases($: any, url: string) {
 
 			const fileLinkSplitted = fileLink.split('/');
 			const fileName = fileLinkSplitted[fileLinkSplitted.length - 1];
+
+			if (isParsedStringsEmpty(fileName)) {
+				return;
+			}
+
 			if (hasExcludeExtensions(fileName) || isFilteredByNameFilters(fileName)) {
 				return;
 			}
@@ -103,6 +124,17 @@ export function fromGithubReleases($: any, url: string) {
 	);
 
 	return images;
+}
+
+function isParsedStringsEmpty(...args: string[]) {
+	let isEmpty = false;
+	args.forEach((value: string) => {
+		if (value.length === 0) {
+			isEmpty = true;
+		}
+	});
+
+	return isEmpty;
 }
 
 function isFilteredByNameFilters(fileName: string) {
@@ -130,7 +162,6 @@ function isFilteredByNameFilters(fileName: string) {
 
 function hasExcludeExtensions(name: string) {
 	if (
-		name.toLowerCase().indexOf('.img') === -1 ||
 		name.toLowerCase().indexOf('.md5') !== -1 ||
 		name.toLowerCase().indexOf('.asc') !== -1 ||
 		name.toLowerCase().indexOf('.sha') !== -1 ||
