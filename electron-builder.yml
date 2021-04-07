@@ -1,5 +1,5 @@
 appId: net.awesometic.odroid-etcher
-copyright: Copyright 2020 Deokgyu Yang <secugyu@gmail.com>
+copyright: Copyright 2020-2021 Deokgyu Yang <secugyu@gmail.com>
 productName: odroidEtcher
 npmRebuild: true
 nodeGypRebuild: false
@@ -16,6 +16,7 @@ mac:
   hardenedRuntime: true
   entitlements: "entitlements.mac.plist"
   entitlementsInherit: "entitlements.mac.plist"
+  artifactName: "${productName}-${version}.${ext}"
 dmg:
   background: assets/dmg/background.tiff
   icon: assets/icon.icns

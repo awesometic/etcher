@@ -15,7 +15,7 @@
     },
     "builder": {
       "appId": "net.awesometic.odroid-etcher",
-      "copyright": "Copyright 2020 Deokgyu Yang <secugyu@gmail.com>",
+      "copyright": "Copyright 2020-2021 Deokgyu Yang <secugyu@gmail.com>",
       "productName": "odroidEtcher",
       "nodeGypRebuild": false,
       "afterPack": "./afterPack.js",
@@ -30,7 +30,8 @@
         "category": "public.app-category.developer-tools",
         "hardenedRuntime": true,
         "entitlements": "entitlements.mac.plist",
-        "entitlementsInherit": "entitlements.mac.plist"
+        "entitlementsInherit": "entitlements.mac.plist",
+        "artifactName": "${productName}-${version}.${ext}"
       },
       "dmg": {
         "iconSize": 110,
