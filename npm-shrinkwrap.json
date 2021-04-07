@@ -3346,11 +3346,11 @@
       "version": "5.7.1",
       "resolved": "https://registry.npmjs.org/buffer/-/buffer-5.7.1.tgz",
       "integrity": "sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==",
-      "dev": true,
       "requires": {
         "base64-js": "^1.3.1",
         "ieee754": "^1.1.13"
-      }
+      },
+      "dev": true
     },
     "buffer-alloc": {
       "version": "1.2.0",
@@ -3750,6 +3750,12 @@
           "version": "2.1.0",
           "resolved": "https://registry.npmjs.org/domelementtype/-/domelementtype-2.1.0.tgz",
           "integrity": "sha512-LsTgx/L5VpD+Q8lmsXSHW2WpA+eBlZ9HPf3erD1IoPF00/3JKHZ3BknUVA2QGDNu69ZNmyFmCWBSO45XjYKC5w==",
+          "dev": true
+        },
+        "entities": {
+          "version": "2.1.0",
+          "resolved": "https://registry.npmjs.org/entities/-/entities-2.1.0.tgz",
+          "integrity": "sha512-hCx1oky9PFrJ611mf0ifBLBRW8lUUVRlFolb5gWRfIELabBlbp9xZvrqZLZAs+NxFnbfQoeGd8wDkygjg7U85w==",
           "dev": true
         }
       }
