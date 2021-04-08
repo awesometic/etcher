@@ -169,8 +169,8 @@ const OdroidImageSelector = ({
 
 	interface ImageSelectModalState {
 		board: boolean;
+		distributor: boolean;
 		os: boolean;
-		mirrorServer: boolean;
 		image: boolean;
 	}
 
@@ -206,8 +206,8 @@ const OdroidImageSelector = ({
 							SelectedOptions.selectedByUser.board = row['board_name'];
 							props.setModalState({
 								board: true,
-								os: true,
-								mirrorServer: false,
+								distributor: true,
+								os: false,
 								image: false,
 							});
 						}}
@@ -243,8 +243,8 @@ const OdroidImageSelector = ({
 								row['distributor_name'];
 							props.setModalState({
 								board: true,
+								distributor: true,
 								os: true,
-								mirrorServer: true,
 								image: false,
 							});
 						}}
@@ -289,8 +289,8 @@ const OdroidImageSelector = ({
 							SelectedOptions.selectedByUser.image = row['image_name'];
 							props.setModalState({
 								board: true,
+								distributor: true,
 								os: true,
-								mirrorServer: true,
 								image: true,
 							});
 						}}
@@ -448,8 +448,8 @@ const OdroidImageSelector = ({
 
 			this.state = {
 				board: true,
+				distributor: false,
 				os: false,
-				mirrorServer: false,
 				image: false,
 			};
 
@@ -462,9 +462,9 @@ const OdroidImageSelector = ({
 		) {
 			if (nextState['image']) {
 				isComplete = [true, true, true, false];
-			} else if (nextState['mirrorServer']) {
-				isComplete = [true, true, false, false];
 			} else if (nextState['os']) {
+				isComplete = [true, true, false, false];
+			} else if (nextState['distributor']) {
 				isComplete = [true, false, false, false];
 			} else {
 				console.log('Something goes wrong, ImageSelectModal will not render.');
