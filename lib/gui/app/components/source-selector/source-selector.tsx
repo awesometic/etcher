@@ -113,6 +113,13 @@ const OdroidImageSelector = ({
 	})`
 		border-bottom: none;
 		table-layout: fixed;
+
+		[data-display='table-body'] > [data-display='table-row'] {
+			&:nth-of-type(even):hover {
+				background: initial;
+				background-color: #e8f5fc;
+			}
+		}
 	`;
 
 	const OdroidImagesTable = styled(({ refFn, ...props }) => {
@@ -123,6 +130,13 @@ const OdroidImageSelector = ({
 
 		[data-display='table-head'],
 		[data-display='table-body'] {
+			> [data-display='table-row'] {
+				&:nth-of-type(even):hover {
+					background: initial;
+					background-color: #e8f5fc;
+				}
+			}
+
 			> [data-display='table-row'] > [data-display='table-cell'] {
 				&:nth-child(1) {
 					width: 74% !important;
