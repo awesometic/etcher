@@ -255,7 +255,7 @@ const OdroidImageSelector = ({
 			case 2: {
 				const toImageTableData = (imageName: string) => {
 					return {
-						image_name: imageName,
+						os_name: imageName,
 					};
 				};
 
@@ -282,11 +282,11 @@ const OdroidImageSelector = ({
 				contents = (
 					<OdroidImageStepTable
 						columns={odroidImageTableColumns}
-						data={imageNames.map((imageName) => toImageTableData(imageName))}
-						rowKey="image_name"
+						data={imageNames.map((osName) => toImageTableData(osName))}
+						rowKey="os_name"
 						onRowClick={(row: any) => {
-							console.log('Clicked: ' + row['image_name']);
-							SelectedOptions.selectedByUser.image = row['image_name'];
+							console.log('Clicked: ' + row['os_name']);
+							SelectedOptions.selectedByUser.os = row['os_name'];
 							props.setModalState({
 								board: true,
 								distributor: true,
@@ -306,7 +306,7 @@ const OdroidImageSelector = ({
 
 				const selectedImageEntry =
 					addrJsonWithSelectedDist[SelectedOptions.selectedByUser.board][
-						SelectedOptions.selectedByUser.image
+						SelectedOptions.selectedByUser.os
 					];
 
 				let targetUrl = '';
@@ -415,8 +415,8 @@ const OdroidImageSelector = ({
 
 	const odroidImageTableColumns: any = [
 		{
-			field: 'image_name',
-			label: 'OS Image Name',
+			field: 'os_name',
+			label: 'OS Name',
 			render: (value: string) => <code>{value}</code>,
 		},
 	];
@@ -544,7 +544,7 @@ const OdroidImageSelector = ({
 												{SelectedOptions.selectedByUser.distributor}
 											</Txt>
 											<Txt>
-												<b>OS</b>: {SelectedOptions.selectedByUser.image}
+												<b>OS</b>: {SelectedOptions.selectedByUser.os}
 											</Txt>
 											<Txt>
 												<b>The file will be downloaded from this link</b>:

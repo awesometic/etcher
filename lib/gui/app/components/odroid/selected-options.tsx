@@ -17,13 +17,13 @@
 interface SelectedByUser {
 	board: string;
 	distributor: string;
-	image: string;
+	os: string;
 }
 
 export class SelectedOptions {
 	static selectedByUser: SelectedByUser = {
 		board: '',
 		distributor: '',
-		image: '',
+		os: '',
 	};
 }
