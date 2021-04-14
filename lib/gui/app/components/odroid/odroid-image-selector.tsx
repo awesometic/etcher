@@ -537,10 +537,8 @@ export const OdroidImageSelector = ({
 									alignItems="center"
 									height="100%"
 								>
-									<Txt.p bold>
-										Failed to fetch the image list. Please wait for a moment
-										until the server is recovered.
-									</Txt.p>
+									<Txt.p bold>Failed to fetch the image list.</Txt.p>
+									<Txt.p>{error}</Txt.p>
 								</Flex>
 							);
 						}

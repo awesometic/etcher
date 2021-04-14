@@ -44,13 +44,25 @@ export async function odroidImageFetch(url: string, archiveType: string) {
 export async function getImagesManifest() {
 	return new Promise(async (resolve, reject) => {
 		const ManifestUrl = 'https://api.awesometic.net/odroid-etcher';
-		const Results = await axios.get(ManifestUrl);
 
-		if (Results.status !== 200) {
-			reject('Failed to load' + ManifestUrl);
+		if (navigator.onLine) {
+			await axios
+				.get(ManifestUrl, {
+					timeout: 5000,
+				})
+				.then((res) => {
+					if (res.status === 200) {
+						console.log(res.data as string);
+						resolve(res.data as string);
+					} else {
+						reject('Abnormal status code: ' + res.status);
+					}
+				})
+				.catch((err) => {
+					reject('Server is not available: ' + err.message);
+				});
+		} else {
+			reject('No internet connection');
 		}
-
-		console.log(Results.data as string);
-		resolve(Results.data as string);
 	});
 }
