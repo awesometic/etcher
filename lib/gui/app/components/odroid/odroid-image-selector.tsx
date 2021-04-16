@@ -2,8 +2,9 @@ import * as React from 'react';
 
 import { Async } from 'react-async';
 import styled from 'styled-components';
-import { Flex, Txt, Step, Steps, Spinner, List } from 'rendition';
+import { Flex, Txt, Step, Steps, Spinner, List, Link, Alert } from 'rendition';
 import { Modal, Table } from '../../styled-components';
+import { open as openExternal } from '../../os/open-external/services/open-external';
 
 import { odroidImageFetch, getImagesManifest } from './fetch';
 import { NameFilters } from './name-filters';
@@ -531,15 +532,49 @@ export const OdroidImageSelector = ({
 
 						if (error) {
 							return (
-								<Flex
-									flexDirection="column"
-									justifyContent="center"
-									alignItems="center"
-									height="100%"
-								>
-									<Txt.p bold>Failed to fetch the image list.</Txt.p>
-									<Txt.p>{error}</Txt.p>
-								</Flex>
+								<>
+									<Flex flexDirection="column" height="40%">
+										<Alert info>
+											If you keep having a trouble with this, please contact me
+											by visiting one of these pages. <br />
+											<List>
+												<Txt>
+													<Link
+														onClick={() =>
+															openExternal(
+																'https://forum.odroid.com/viewtopic.php?f=55&t=40411',
+															)
+														}
+													>
+														Odroid Etcher development thread at Odroid forum
+													</Link>
+												</Txt>
+												<Txt>
+													<Link
+														onClick={() =>
+															openExternal(
+																'https://github.com/awesometic/odroid-etcher',
+															)
+														}
+													>
+														Odroid Etcher Github repository
+													</Link>
+												</Txt>
+											</List>
+										</Alert>
+									</Flex>
+									<Flex
+										flexDirection="column"
+										justifyContent="center"
+										alignItems="center"
+										height="60%"
+									>
+										<Txt.p>
+											<Txt bold>Failed to fetch the image list.</Txt>
+											<Txt>- {error}</Txt>
+										</Txt.p>
+									</Flex>
+								</>
 							);
 						}
 
