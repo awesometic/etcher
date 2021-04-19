@@ -28,6 +28,18 @@ export const OdroidImageSelector = ({
 		border-bottom: none;
 		table-layout: fixed;
 
+		[data-display='table-head']
+			> [data-display='table-row']
+			> [data-display='table-cell']
+			> button {
+			width: inherit;
+			height: inherit;
+
+			&:not(:focus) {
+				color: inherit;
+			}
+		}
+
 		[data-display='table-body'] > [data-display='table-row'] {
 			&:nth-of-type(even):hover {
 				background: initial;
@@ -41,6 +53,18 @@ export const OdroidImageSelector = ({
 	})`
 		border-bottom: none;
 		table-layout: fixed;
+
+		[data-display='table-head']
+			> [data-display='table-row']
+			> [data-display='table-cell']
+			> button {
+			width: inherit;
+			height: inherit;
+
+			&:not(:focus) {
+				color: inherit;
+			}
+		}
 
 		[data-display='table-head'],
 		[data-display='table-body'] {
@@ -335,6 +359,7 @@ export const OdroidImageSelector = ({
 		{
 			field: 'board_name',
 			label: 'Board Name',
+			sortable: true,
 			render: (value: string) => <code>{value}</code>,
 		},
 	];
@@ -343,6 +368,7 @@ export const OdroidImageSelector = ({
 		{
 			field: 'distributor_name',
 			label: 'Distributor Name',
+			sortable: true,
 			render: (value: string) => <code>{value}</code>,
 		},
 	];
@@ -351,6 +377,7 @@ export const OdroidImageSelector = ({
 		{
 			field: 'os_name',
 			label: 'OS Name',
+			sortable: true,
 			render: (value: string) => <code>{value}</code>,
 		},
 	];
@@ -359,16 +386,19 @@ export const OdroidImageSelector = ({
 		{
 			field: 'file_name',
 			label: 'Name',
+			sortable: true,
 			render: (value: string) => <code>{value}</code>,
 		},
 		{
 			field: 'file_size',
 			label: 'Size',
+			sortable: true,
 			render: (value: string) => <span>{value}</span>,
 		},
 		{
 			field: 'last_modified',
 			label: 'Last Modified',
+			sortable: true,
 			render: (value: string) => <span>{value}</span>,
 		},
 	];
