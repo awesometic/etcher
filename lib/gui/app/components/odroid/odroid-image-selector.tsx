@@ -32,6 +32,7 @@ export const OdroidImageSelector = ({
 			> [data-display='table-row']
 			> [data-display='table-cell']
 			> button {
+			font-weight: inherit;
 			width: inherit;
 			height: inherit;
 
@@ -58,6 +59,7 @@ export const OdroidImageSelector = ({
 			> [data-display='table-row']
 			> [data-display='table-cell']
 			> button {
+			font-weight: inherit;
 			width: inherit;
 			height: inherit;
 
