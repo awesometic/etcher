@@ -165,7 +165,13 @@ export const OdroidImageSelector = ({
 				const distributorNames = Array();
 
 				DistributorNameEntries.forEach((element) => {
-					distributorNames.push(element[0]);
+					if (
+						(element[1] as []).hasOwnProperty(
+							SelectedOptions.selectedByUser.board,
+						)
+					) {
+						distributorNames.push(element[0]);
+					}
 				});
 
 				contents = (
@@ -201,12 +207,6 @@ export const OdroidImageSelector = ({
 					props.addressesJsonObject['Distributor'][
 						SelectedOptions.selectedByUser.distributor
 					];
-
-				if (
-					!(SelectedOptions.selectedByUser.board in addrJsonWithSelectedDist)
-				) {
-					return <p>N/A</p>;
-				}
 
 				const ImageNameEntries = Object.entries(
 					addrJsonWithSelectedDist[SelectedOptions.selectedByUser.board],
