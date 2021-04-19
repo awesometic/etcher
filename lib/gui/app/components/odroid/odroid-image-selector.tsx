@@ -290,23 +290,43 @@ export const OdroidImageSelector = ({
 
 	const StepLabels = ['Board', 'Distributor', 'OS Image', 'Files'];
 
-	const GetStep = (index: number) => {
+	const GetStep = (
+		index: number,
+		setModalState: (nextState: ImageSelectModalState) => void,
+	) => {
 		return (
-			<Step key={index} status={isComplete[index] ? 'completed' : 'pending'}>
+			<Step
+				key={index}
+				status={isComplete[index] ? 'completed' : 'pending'}
+				onClick={() => {
+					isComplete.forEach((_, arrayIndex, theArray) => {
+						theArray[arrayIndex] = arrayIndex <= index;
+					});
+
+					setModalState({
+						board: isComplete[0],
+						distributor: isComplete[1],
+						os: isComplete[2],
+						image: isComplete[3],
+					});
+				}}
+			>
 				{StepLabels[index]}
 			</Step>
 		);
 	};
 
-	const OrderedSteps = ({ ...props }) => {
+	const OrderedSteps = (props: {
+		setModalState: (nextState: ImageSelectModalState) => void;
+	}) => {
 		return (
 			<Steps
 				ordered
 				activeStepIndex={currentActiveStepIndex()}
 				pb={2}
-				{...props}
+				bordered={false}
 			>
-				{StepLabels.map((_null, index) => GetStep(index))}
+				{StepLabels.map((_null, index) => GetStep(index, props.setModalState))}
 			</Steps>
 		);
 	};
@@ -380,6 +400,8 @@ export const OdroidImageSelector = ({
 				isComplete = [true, true, false, false];
 			} else if (nextState['distributor']) {
 				isComplete = [true, false, false, false];
+			} else if (nextState['board']) {
+				isComplete = [false, false, false, false];
 			} else {
 				console.log('Something goes wrong, ImageSelectModal will not render.');
 				return false;
@@ -422,7 +444,7 @@ export const OdroidImageSelector = ({
 								width="100%"
 								height="15%"
 							>
-								<OrderedSteps bordered={false} />
+								<OrderedSteps setModalState={this.update} />
 							</Flex>
 							<Flex
 								flexDirection="column"
