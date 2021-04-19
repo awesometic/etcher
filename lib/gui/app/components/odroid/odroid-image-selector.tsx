@@ -516,7 +516,7 @@ export const OdroidImageSelector = ({
 		>
 			<Flex flexDirection="column" width="100%" height="100%">
 				<Async promiseFn={async () => getImagesManifest()}>
-					{({ data, error, isLoading }) => {
+					{({ data, error, isLoading, reload }) => {
 						if (isLoading) {
 							return (
 								<Flex
@@ -541,7 +541,10 @@ export const OdroidImageSelector = ({
 									>
 										<Txt.p>
 											<Txt bold align="center">
-												Failed to fetch the image list.
+												Failed to fetch the image list.{' '}
+												<a onClick={reload} href="">
+													Click here to retry.
+												</a>
 											</Txt>
 											<Txt>- {error}</Txt>
 										</Txt.p>
