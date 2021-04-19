@@ -533,7 +533,20 @@ export const OdroidImageSelector = ({
 						if (error) {
 							return (
 								<>
-									<Flex flexDirection="column" height="40%">
+									<Flex
+										flexDirection="column"
+										justifyContent="center"
+										alignItems="center"
+										height="55%"
+									>
+										<Txt.p>
+											<Txt bold align="center">
+												Failed to fetch the image list.
+											</Txt>
+											<Txt>- {error}</Txt>
+										</Txt.p>
+									</Flex>
+									<Flex flexDirection="column" height="45%">
 										<Alert info>
 											If you keep having a trouble with this, please contact me
 											by visiting one of these pages. <br />
@@ -562,17 +575,6 @@ export const OdroidImageSelector = ({
 												</Txt>
 											</List>
 										</Alert>
-									</Flex>
-									<Flex
-										flexDirection="column"
-										justifyContent="center"
-										alignItems="center"
-										height="60%"
-									>
-										<Txt.p>
-											<Txt bold>Failed to fetch the image list.</Txt>
-											<Txt>- {error}</Txt>
-										</Txt.p>
 									</Flex>
 								</>
 							);
