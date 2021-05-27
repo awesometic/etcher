@@ -1,6 +1,6 @@
 {
   "name": "odroid-etcher",
-  "version": "1.5.117",
+  "version": "1.5.116-2",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
