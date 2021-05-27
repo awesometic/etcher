@@ -38,7 +38,6 @@ import * as exceptionReporter from './modules/exception-reporter';
 import * as osDialog from './os/dialog';
 import * as windowProgress from './os/window-progress';
 import MainPage from './pages/main/MainPage';
-import './css/main.css';
 
 window.addEventListener(
 	'unhandledrejection',
@@ -340,7 +339,7 @@ window.addEventListener('beforeunload', async (event) => {
 	}
 });
 
-export async function main() {
+async function main() {
 	await ledsInit();
 	ReactDOM.render(
 		React.createElement(MainPage),
@@ -357,3 +356,5 @@ export async function main() {
 		},
 	);
 }
+
+main();
