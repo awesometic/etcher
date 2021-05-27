@@ -15,6 +15,7 @@
  */
 
 import GithubSvg from '@fortawesome/fontawesome-free/svgs/brands/github.svg';
+import CommentSvg from '@fortawesome/fontawesome-free/svgs/solid/comment-alt.svg';
 import * as _ from 'lodash';
 import * as React from 'react';
 import { Flex, Checkbox, Txt } from 'rendition';
@@ -123,7 +124,53 @@ export function SettingsModal({ toggleModal }: SettingsModalProps) {
 						fill="currentColor"
 						style={{ marginRight: 8 }}
 					/>
-					<Txt style={{ borderBottom: '1px solid #00aeef' }}>{version}</Txt>
+					<Txt style={{ borderBottom: '1px solid #00aeef' }}>
+						Balena Etcher Changelog
+					</Txt>
+				</Flex>
+				<Flex
+					mt={18}
+					alignItems="center"
+					color="#00aeef"
+					style={{
+						width: 'fit-content',
+						cursor: 'pointer',
+						fontSize: 14,
+					}}
+					onClick={() =>
+						openExternal('https://github.com/awesometic/odroid-etcher')
+					}
+				>
+					<GithubSvg
+						height="1em"
+						fill="currentColor"
+						style={{ marginRight: 8 }}
+					/>
+					<Txt style={{ borderBottom: '1px solid #00aeef' }}>
+						Odroid Etcher v{version}
+					</Txt>
+				</Flex>
+				<Flex
+					mt={18}
+					alignItems="center"
+					color="#00aeef"
+					style={{
+						width: 'fit-content',
+						cursor: 'pointer',
+						fontSize: 14,
+					}}
+					onClick={() =>
+						openExternal('https://forum.odroid.com/viewtopic.php?f=55&t=40411')
+					}
+				>
+					<CommentSvg
+						height="1em"
+						fill="currentColor"
+						style={{ marginRight: 8 }}
+					/>
+					<Txt style={{ borderBottom: '1px solid #00aeef' }}>
+						Odroid Forum Thread for Odroid Etcher
+					</Txt>
 				</Flex>
 			</Flex>
 		</Modal>
